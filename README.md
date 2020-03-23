@@ -1,2 +1,3 @@
-# dslr
-Datascience X Logistic RegressionHarry Potter and a Data Scientist
+# Datascience X Logistic Regression
+## Harry Potter and a Data Scientist
+### Summary: Write a classifier and save Hogwarts!

@@ -1,6 +1,24 @@
 #!/usr/bin/env python3
 
-import numpy as np #tmp
+def all_nums(numbers):
+    for number in numbers:
+        if type(number) != int and type(number) != float:
+            return False
+    return True
+
+def ceil_(number):
+    return (1 - (number % 1)) + number
+
+def len_(x):
+    length = 0
+    if type(x) == int or type(x) == float:
+        while x >= 1:
+            x /= 10
+            length += 1
+    else:
+        for l in x:
+            length += 1
+    return length
 
 def sum_(numbers):
     total = 0
@@ -8,17 +26,21 @@ def sum_(numbers):
         total += number
     return total
 
-def len_(x):
-    length = 0
-    for l in x:
-        length += 1
-    return length
+#def round_(number, decimals=0):
+#    multiplier = 10 ** decimals
+#    return int(number * multiplier) / multiplier
 
-def all_nums(numbers):
-    for number in numbers:
-        if type(number) != int and type(number) != float:
-            return False
-    return True
+def sort_(numbers):
+    length = len_(numbers) - 1
+    i = 0
+    while i < length:
+        if numbers[i] > numbers[i + 1]:
+            swap = numbers[i]
+            numbers[i] = numbers[i + 1]
+            numbers[i + 1] = swap
+            i = 0
+        else:
+            i += 1
 
 def count_(data):
     count = 0
@@ -35,6 +57,12 @@ def mean_(numbers):
             return s / l
     return 0
 
+def std_(numbers, mean=0):
+    if mean == 0:
+        mean = mean_(numbers)
+    length = len_(numbers) - 1 #pandas like std, or remove -1 for numpy like
+    return (sum_([(number - mean) ** 2 for number in numbers]) / length) ** 0.5
+
 def min_(numbers):
     minimum = numbers[0]
     for number in numbers:
@@ -45,16 +73,15 @@ def min_(numbers):
 def percentile_(numbers, p):
     p /= 100
     length = len_(numbers)
-    numbers.sort() #to-do
+    sort_(numbers)
     index = p * (length - 1)    #what number is at given % in numbers list
     if length % 2 == 0:         #if no middle -> index is always in between two values
-        right_index = int(np.ceil(index)) #to-do
+        right_index = int(ceil_(index))
         left_index = right_index - 1
         right_proximity = index - left_index
         left_proximity = 1 - right_proximity
         right_weight = numbers[right_index] * right_proximity
         left_weight = numbers[left_index] * left_proximity
-        #print(f"{p}% \t {index} \t {left_index} / {right_index} ") #tmp
         return left_weight + right_weight
     else:
         return numbers[int(index)]
@@ -65,17 +92,3 @@ def max_(numbers):
         if number > maximum:
             maximum = number
     return maximum
-
-#def test(xx):
-#    for x in xx:
-#        print('\n', x)
-#        print(f'25%: {percentile_(x, 25)} - {np.percentile(np.array(x), 25)}\n'
-#            f'50%: {percentile_(x, 50)} - {np.percentile(np.array(x), 50)}\n'
-#            f'75%: {percentile_(x, 75)} - {np.percentile(np.array(x), 75)}')
-
-#x1 = [1, 2, 3, 4]
-#x2 = [2, 3, 4, 5]
-#x11 = [4, 2, 1, 7]
-#x3 = [1, 2, 3, 4, 5]
-#x4 = [4, 2, 3, 11, 8]
-#test([x1, x2, x11, x3, x4])

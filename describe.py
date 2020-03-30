@@ -9,7 +9,7 @@ import csv
 import sys
 import shutil
 
-from calc import *
+from calculations import *
 
 PADDING = 4
 

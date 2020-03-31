@@ -5,9 +5,7 @@ Takes a dataset as a parameter and
 displays information for all numerical features
 '''
 
-import csv
-import sys
-import shutil
+import csv, sys, os
 
 from calculations import *
 
@@ -16,49 +14,54 @@ PADDING = 4
 class Data:
 
     header = []
-    features_number = 0
+    features_nb = 0
     width = []
     total_width = 0
     students = []
-    students_number = 0
+    students_nb = 0
     info = []
 
     def __init__(self, dataset):
         with open(dataset) as file:
             data = csv.reader(file)
             self.header = next(data)
-            self.features_number = len_(self.header)
+            self.features_nb = len_(self.header)
             self.width = [len(word) + PADDING for word in self.header]
             for student in data:
                 self.transform_numbers(student)
                 self.students.append(student)
-                self.students_number += 1        
+                self.students_nb += 1        
 
-    def __str__(self):
-        terminal_width, height = shutil.get_terminal_size()
+    def __str__(self, columns=80, lines=24):
+        try:
+            columns, lines = os.get_terminal_size()
+        except:
+            pass
         i = 0
-        while i < self.features_number:
-            self.print_header(terminal_width, i)
-            i = self.print_calculations(terminal_width, i)
-            if i < self.features_number:
+        while i < self.features_nb:
+            self.print_header(columns, i)
+            i = self.print_calculations(columns, i)
+            if i < self.features_nb:
                 print("\n")             
         return ''
     
     def print_header(self, terminal_width, i):
         printed = 5 #length of the word "Count"
         print(f"{'':<{printed}}", end="")
-        while i < self.features_number and printed + self.width[i] <= terminal_width:
+        while i < self.features_nb and printed + self.width[i] <= terminal_width:
             print(f"{self.header[i]:>{self.width[i]}}", end="")
             printed += self.width[i]
             i += 1
     
-    def print_calculations(self, terminal_width, ii):
+    def print_calculations(self, terminal_width, start):
         for key in ("Count", "Mean", "Std", "Min", "25%", "50%", "75%", "Max"):
             printed = 5
             print(f"\n{key:<{printed}}", end="")
-            i = ii
-            while i < self.features_number and printed + self.width[i] <= terminal_width:
-                if "Max" in self.info[i] or key == "Count":
+            i = start
+            while i < self.features_nb and printed + self.width[i] <= terminal_width:
+                if key == "Count" and "Max" not in self.info[i]:
+                    print(f"{self.info[i][key]:>{self.width[i]}}", end="")
+                elif key in self.info[i]:
                     print(f"{self.info[i][key]:>{self.width[i]}.6f}", end="")
                 else:
                     print(f"{'NaN':>{self.width[i]}}", end="")
@@ -68,19 +71,26 @@ class Data:
 
     def transform_numbers(self, student):
         for i in range(len(student)):
-            if student[i].isdigit():
-                student[i] = int(student[i])
+            try:
+                student[i] = float(student[i])
+            except:
+                pass
 
     def analyze_features(self):
-        [self.make_calculations([self.students[i][x] for i in range(self.students_number)]) for x in range(self.features_number)]
-        for i in range(len_(self.width)):
-            self.width[i] = max_([self.width[i], self.info[i]["width"]])
+        for f in range(self.features_nb):
+            feature = [self.students[s][f] for s in range(self.students_nb)]
+            self.make_calculations(feature)
+        
+        for f in range(self.features_nb):
+            self.width[f] = max_([self.width[f], self.info[f]["width"]])
         self.total_width = sum_(self.width) + 5
     
     def make_calculations(self, data):
         info = {}
         info["Count"] = count_(data)
-        if all_nums(data):
+        data = remove_empty_strings(data)
+        if count_(data, 'numbers') == info["Count"]:
+            sort_(data)
             info["Mean"] = mean_(data)
             info["Std"] = std_(data, info["Mean"])
             info["Min"] = min_(data)
@@ -98,6 +108,7 @@ if __name__ == "__main__":
         DATA.analyze_features()
         print(DATA)
 
+        #print("\n")
         #from print_pandas_info import print_padas_info as ppi #tmp
         #ppi(sys.argv[1]) #tmp
     except AssertionError:

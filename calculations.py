@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-
-def all_nums(numbers):
-    for number in numbers:
-        if type(number) != int and type(number) != float:
-            return False
-    return True
-
 def ceil_(number):
     return (1 - (number % 1)) + number
 
@@ -26,35 +18,38 @@ def sum_(numbers):
         total += number
     return total
 
-#def round_(number, decimals=0):
-#    multiplier = 10 ** decimals
-#    return int(number * multiplier) / multiplier
-
-def sort_(numbers):
+def sort_(numbers, end=True):
     length = len_(numbers) - 1
     i = 0
     while i < length:
         if numbers[i] > numbers[i + 1]:
-            swap = numbers[i]
-            numbers[i] = numbers[i + 1]
-            numbers[i + 1] = swap
+            numbers[i], numbers[i + 1] = numbers[i + 1], numbers[i]
+            end = False
+        i += 1
+        if i == length and end == False:
             i = 0
-        else:
-            i += 1
+            end = True
 
-def count_(data):
+def remove_empty_strings(data):
+    return [d for d in data if d != '']
+
+def count_(data, what=0):
     count = 0
-    for d in data:
-        if d:
-            count += 1
+    if what == 0:
+        for d in data:
+            if d or d == 0:
+                count += 1
+    elif what == 'numbers':
+        for d in data:
+            if type(d) == float or d == 0:
+                count += 1
     return count
 
 def mean_(numbers):
-    if all_nums(numbers):
-        s = sum_(numbers)
-        l = len_(numbers)
-        if s > 0 and l > 0:
-            return s / l
+    s = sum_(numbers)
+    l = len_(numbers)
+    if s > 0 and l > 0:
+        return s / l
     return 0
 
 def std_(numbers, mean=0):
@@ -73,7 +68,6 @@ def min_(numbers):
 def percentile_(numbers, p):
     p /= 100
     length = len_(numbers)
-    sort_(numbers)
     index = p * (length - 1)    #what number is at given % in numbers list
     if length % 2 == 0:         #if no middle -> index is always in between two values
         right_index = int(ceil_(index))

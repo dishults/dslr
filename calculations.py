@@ -18,17 +18,16 @@ def sum_(numbers):
         total += number
     return total
 
-def sort_(numbers, end=True):
+def sort_(numbers):
     length = len_(numbers) - 1
-    i = 0
-    while i < length:
-        if numbers[i] > numbers[i + 1]:
-            numbers[i], numbers[i + 1] = numbers[i + 1], numbers[i]
-            end = False
-        i += 1
-        if i == length and end == False:
-            i = 0
-            end = True
+    start = 0
+    while start < length:
+        smallest = min_(numbers[start:])
+        i = start
+        while numbers[i] != smallest:
+            i += 1
+        numbers[start], numbers[i] = numbers[i], numbers[start]
+        start += 1
 
 def remove_empty_strings(data):
     return [d for d in data if d != '']

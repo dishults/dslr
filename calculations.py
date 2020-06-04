@@ -19,15 +19,18 @@ def sum_(numbers):
     return total
 
 def sort_(numbers):
-    length = len_(numbers) - 1
-    start = 0
-    while start < length:
-        smallest = min_(numbers[start:])
-        i = start
-        while numbers[i] != smallest:
-            i += 1
-        numbers[start], numbers[i] = numbers[i], numbers[start]
-        start += 1
+    try:
+        length = len_(numbers) - 1
+        start = 0
+        while start < length:
+            smallest = min_(numbers[start:])
+            i = start
+            while numbers[i] != smallest:
+                i += 1
+            numbers[start], numbers[i] = numbers[i], numbers[start]
+            start += 1
+    except:
+        pass
 
 def remove_empty_strings(data):
     return [d for d in data if d != '']
@@ -47,7 +50,7 @@ def count_(data, what=0):
 def mean_(numbers):
     s = sum_(numbers)
     l = len_(numbers)
-    if s > 0 and l > 0:
+    if s != 0 and l != 0:
         return s / l
     return 0
 
@@ -58,11 +61,15 @@ def std_(numbers, mean=0):
     return (sum_([(number - mean) ** 2 for number in numbers]) / length) ** 0.5
 
 def min_(numbers):
-    minimum = numbers[0]
-    for number in numbers:
-        if number < minimum:
-            minimum = number
-    return minimum
+    try:
+        minimum = numbers[0]
+        for number in numbers:
+            if number < minimum:
+                minimum = number
+        return minimum
+    except:
+        return numbers
+
 
 def percentile_(numbers, p):
     p /= 100

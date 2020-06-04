@@ -10,6 +10,7 @@ import csv, sys, os
 from calculations import *
 
 PADDING = 4
+DP = 6      #decemal places
 
 class Data:
 
@@ -62,7 +63,7 @@ class Data:
                 if key == "Count" and "Max" not in self.info[i]:
                     print(f"{self.info[i][key]:>{self.width[i]}}", end="")
                 elif key in self.info[i]:
-                    print(f"{self.info[i][key]:>{self.width[i]}.6f}", end="")
+                    print(f"{self.info[i][key]:>{self.width[i]}.{DP}f}", end="")
                 else:
                     print(f"{'NaN':>{self.width[i]}}", end="")
                 printed += self.width[i]

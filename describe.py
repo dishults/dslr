@@ -70,7 +70,8 @@ class Data:
                 i += 1
         return i
 
-    def transform_numbers(self, student):
+    @staticmethod
+    def transform_numbers(student):
         for i in range(len(student)):
             try:
                 student[i] = float(student[i])
@@ -109,9 +110,6 @@ if __name__ == "__main__":
         DATA.analyze_features()
         print(DATA)
 
-        #print("\n")
-        #from print_pandas_info import print_padas_info as ppi #tmp
-        #ppi(sys.argv[1]) #tmp
     except AssertionError:
         print("Example usage: ./describe.py dataset_train.csv")
         

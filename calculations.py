@@ -1,6 +1,3 @@
-def ceil_(number):
-    return (1 - (number % 1)) + number
-
 def len_(x):
     length = 0
     if type(x) == int or type(x) == float:
@@ -57,7 +54,8 @@ def mean_(numbers):
 def std_(numbers, mean=0):
     if mean == 0:
         mean = mean_(numbers)
-    length = len_(numbers) - 1 #pandas like std, or remove -1 for numpy like
+    # Pandas-like std, or remove -1 for numpy-like
+    length = len_(numbers) - 1
     return (sum_([(number - mean) ** 2 for number in numbers]) / length) ** 0.5
 
 def min_(numbers):
@@ -70,21 +68,25 @@ def min_(numbers):
     except:
         return numbers
 
-
 def percentile_(numbers, p):
     p /= 100
     length = len_(numbers)
-    index = p * (length - 1)    #what number is at given % in numbers list
-    if length % 2 == 0:         #if no middle -> index is always in between two values
-        right_index = int(ceil_(index))
-        left_index = right_index - 1
-        right_proximity = index - left_index
-        left_proximity = 1 - right_proximity
-        right_weight = numbers[right_index] * right_proximity
-        left_weight = numbers[left_index] * left_proximity
-        return left_weight + right_weight
-    else:
+    index = p * (length - 1)
+    
+    # If index is an int, a precise whole number => no need for guessing
+    if index % 1 * 10 == 0:
         return numbers[int(index)]
+
+    before = int(index)
+    after = before + 1
+
+    before_proximity = after - index
+    after_proximity = 1 - before_proximity
+
+    before_weight = numbers[before] * before_proximity
+    after_weight = numbers[after] * after_proximity
+
+    return before_weight + after_weight
 
 def max_(numbers):
     maximum = numbers[0]

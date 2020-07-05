@@ -6,10 +6,12 @@ import os
 from describe import Data, DP
 from calculations import len_, percentile_, max_
 
-class test_calculations(unittest.TestCase):
+DP -= 1
 
-    dataset = "datasets/small_set.csv"
-    #dataset = "datasets/dataset_train.csv"
+class Tests(unittest.TestCase):
+
+    #dataset = "datasets/small_set.csv"
+    dataset = "datasets/dataset_train.csv"
     #dataset = "datasets/dataset_test.csv"
 
     my = Data(dataset)

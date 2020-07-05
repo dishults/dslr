@@ -47,7 +47,8 @@ class Data:
         return ''
     
     def print_header(self, terminal_width, i):
-        printed = 5 #length of the word "Count"
+        # Length of the word "Count"
+        printed = 5
         print(f"{'':<{printed}}", end="")
         while i < self.features_nb and printed + self.width[i] <= terminal_width:
             print(f"{self.header[i]:>{self.width[i]}}", end="")

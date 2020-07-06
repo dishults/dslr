@@ -1,37 +1,32 @@
 #!/usr/bin/env python3
-
-'''
-Takes a dataset as a parameter and 
-displays information for all numerical features
-'''
+"""
+Take a dataset as a parameter and 
+display information for all numerical features
+"""
 
 import csv, sys, os
 
 from calculations import *
+from d_print import Print
 
 PADDING = 4
-DP = 6      #decemal places
 
 class Data:
 
-    header = []
+    features = []
     features_nb = 0
     width = []
     total_width = 0
-    students = []
-    students_nb = 0
     info = []
 
     def __init__(self, dataset):
         with open(dataset) as file:
             data = csv.reader(file)
-            self.header = next(data)
-            self.features_nb = len_(self.header)
-            self.width = [len(word) + PADDING for word in self.header]
+            self.features = next(data)
+            self.features_nb = len_(self.features)
+            self.width = [len_(word) + PADDING for word in self.features]
             for student in data:
-                self.transform_numbers(student)
-                self.students.append(student)
-                self.students_nb += 1        
+                Students(student)
 
     def __str__(self, columns=80, lines=24):
         try:
@@ -40,59 +35,22 @@ class Data:
             pass
         i = 0
         while i < self.features_nb:
-            self.print_header(columns, i)
-            i = self.print_calculations(columns, i)
+            Print.features(self, columns, i)
+            i = Print.calculations(self, columns, i)
             if i < self.features_nb:
                 print("\n")             
         return ''
-    
-    def print_header(self, terminal_width, i):
-        # Length of the word "Count"
-        printed = 5
-        print(f"{'':<{printed}}", end="")
-        while i < self.features_nb and printed + self.width[i] <= terminal_width:
-            print(f"{self.header[i]:>{self.width[i]}}", end="")
-            printed += self.width[i]
-            i += 1
-    
-    def print_calculations(self, terminal_width, start):
-        for key in ("Count", "Mean", "Std", "Min", "25%", "50%", "75%", "Max"):
-            printed = 5
-            print(f"\n{key:<{printed}}", end="")
-            i = start
-            while i < self.features_nb and printed + self.width[i] <= terminal_width:
-                if key == "Count" and "Max" not in self.info[i]:
-                    print(f"{self.info[i][key]:>{self.width[i]}}", end="")
-                elif key in self.info[i]:
-                    print(f"{self.info[i][key]:>{self.width[i]}.{DP}f}", end="")
-                else:
-                    print(f"{'NaN':>{self.width[i]}}", end="")
-                printed += self.width[i]
-                i += 1
-        return i
-
-    @staticmethod
-    def transform_numbers(student):
-        for i in range(len(student)):
-            try:
-                student[i] = float(student[i])
-            except:
-                pass
 
     def analyze_features(self):
         for f in range(self.features_nb):
-            feature = [self.students[s][f] for s in range(self.students_nb)]
+            feature = Students.get_one_feature(f)
             self.make_calculations(feature)
-        
-        for f in range(self.features_nb):
-            self.width[f] = max_([self.width[f], self.info[f]["width"]])
-        self.total_width = sum_(self.width) + 5
     
     def make_calculations(self, data):
         info = {}
         info["Count"] = count_(data)
         data = remove_empty_strings(data)
-        if count_(data, 'numbers') == info["Count"]:
+        if info["Count"] > 0 and count_(data, 'numbers') == info["Count"]:
             sort_(data)
             info["Mean"] = mean_(data)
             info["Std"] = std_(data, info["Mean"])
@@ -103,12 +61,41 @@ class Data:
             info["Max"] = max_(data)
         info["width"] = max_([len_(num) for num in info.values()]) + 7 + PADDING
         self.info.append(info)
+    
+    def update_width(self):
+        for f in range(self.features_nb):
+            self.width[f] = max_([self.width[f], self.info[f]["width"]])
+        self.total_width = sum_(self.width) + 5
+
+class Students:
+
+    students = []
+    students_nb = 0
+
+    @classmethod
+    def __init__(cls, student):
+        cls.transform(student)
+        cls.students.append(student)
+        cls.students_nb += 1
+    
+    @staticmethod
+    def transform(student):
+        for i in range(len_(student)):
+            try:
+                student[i] = float(student[i])
+            except:
+                pass
+    
+    @classmethod
+    def get_one_feature(cls, f):
+        return [cls.students[s][f] for s in range(cls.students_nb)]
 
 if __name__ == "__main__":
     try:
-        assert len(sys.argv) == 2
+        assert len_(sys.argv) == 2
         DATA = Data(sys.argv[1])
         DATA.analyze_features()
+        DATA.update_width()
         print(DATA)
 
     except AssertionError:

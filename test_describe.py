@@ -3,8 +3,8 @@ import unittest
 import pandas as pd
 import os
 
-from describe import Data, DP
-from calculations import len_, percentile_, max_
+from describe import Data
+from d_print import DP
 
 DP -= 1
 

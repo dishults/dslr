@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import os
 
-from describe import Data
+from describe import Data, Features
 from d_print import DP
 
 DP -= 1
@@ -17,7 +17,7 @@ class Tests(unittest.TestCase):
     my = Data(dataset)
     p_data = pd.read_csv(dataset)
 
-    my.analyze_features()
+    Features.analyze()
     p = {
         "Count" : p_data.count(),
         "Mean" : p_data.mean(numeric_only=True),

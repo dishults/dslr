@@ -1,11 +1,10 @@
 def len_(x):
     length = 0
-    if type(x) == int or type(x) == float:
+    try:
+        length = len(x)
+    except:
         while x >= 1:
             x /= 10
-            length += 1
-    else:
-        for l in x:
             length += 1
     return length
 

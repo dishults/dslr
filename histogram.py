@@ -39,8 +39,8 @@ class Hogwarts:
 
         return abs((max_height * mean_(grades)) // max_(grades))
 
-    def plot(self, course, score):
-        plt.bar(course + self.position, score, color=self.color, width=1)
+    def plot(self, course, score, label=None):
+        plt.bar(course + self.position, score, color=self.color, width=1, label=label)
 
 class Gryffindor(Hogwarts):
 
@@ -52,6 +52,9 @@ class Gryffindor(Hogwarts):
     def get_grades(self, course):
         grades = super().get_grades("Gryffindor", course)
         self.grades[course] = super().get_normalized_mean(grades)
+    
+    def set_label(self, course):
+        super().plot(0, self.grades[course], label="Gryffindor")
 
 class Hufflepuff(Hogwarts):
     
@@ -64,6 +67,9 @@ class Hufflepuff(Hogwarts):
         grades = super().get_grades("Hufflepuff", course)
         self.grades[course] = super().get_normalized_mean(grades)
 
+    def set_label(self, course):
+        super().plot(0, self.grades[course], label="Hufflepuff")
+
 class Ravenclaw(Hogwarts):
     
     grades = {}
@@ -74,6 +80,9 @@ class Ravenclaw(Hogwarts):
     def get_grades(self, course):
         grades = super().get_grades("Ravenclaw", course)
         self.grades[course] = super().get_normalized_mean(grades)
+
+    def set_label(self, course):
+        super().plot(0, self.grades[course], label="Ravenclaw")
 
 class Slytherin(Hogwarts):
     
@@ -86,23 +95,25 @@ class Slytherin(Hogwarts):
         grades = super().get_grades("Slytherin", course)
         self.grades[course] = super().get_normalized_mean(grades)
 
-def plot():
-    g = Gryffindor()
-    h = Hufflepuff()
-    r = Ravenclaw()
-    s = Slytherin()
+    def set_label(self, course):
+        super().plot(0, self.grades[course], label="Slytherin")
 
-    courses = Features.titles[6:]
-
+def get_grades(courses, g, h, r, s):
     for course in courses:
         g.get_grades(course)
         h.get_grades(course)
         r.get_grades(course)
         s.get_grades(course)
 
-    plt.xlabel('Courses')
-    plt.ylabel('Scores')
-    position = 0
+def set_labels(course, g, h, r, s):
+    g.set_label(course)
+    h.set_label(course)
+    r.set_label(course)
+    s.set_label(course)
+
+def plot(courses, g, h, r, s):
+    position = 5
+
     for course in courses:
         g.plot(position, g.grades[course])
         h.plot(position, h.grades[course])
@@ -110,13 +121,32 @@ def plot():
         s.plot(position, s.grades[course])
         plt.bar(position + 5, 0, width=0)
         position += 5
-    plt.show()
 
 def main():
     try:
         assert len(sys.argv) == 2
-        data = Data(sys.argv[1])
-        plot()
+
+        Data(sys.argv[1])
+        g = Gryffindor()
+        h = Hufflepuff()
+        r = Ravenclaw()
+        s = Slytherin()
+
+        courses = Features.titles[6:]
+        get_grades(courses, g, h, r, s)
+
+        fig = plt.figure(figsize=(18, 7))
+        fig.suptitle("Courses")
+        plt.ylabel("Scores range", fontsize='large')
+
+        set_labels(courses[0], g, h, r, s)
+        plot(courses[1:], g, h, r, s)
+
+        plt.yticks([])
+        plt.xticks(list(range(4, len(courses) * 5, 5)), courses)
+        fig.autofmt_xdate()
+        plt.legend()
+        plt.show()
 
     except AssertionError:
         print("Example usage: ./histogram.py dataset_train.csv")

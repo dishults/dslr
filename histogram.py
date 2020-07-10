@@ -45,7 +45,7 @@ def make_histogram(courses):
     fig.autofmt_xdate()
     plt.legend()
     plt.show()
-    return
+    yield
 
 def main():
     assert len(sys.argv) == 2

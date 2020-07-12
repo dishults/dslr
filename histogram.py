@@ -9,7 +9,26 @@ import sys
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-from hogwarts import Gryffindor, Hufflepuff, Ravenclaw, Slytherin
+from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
+from calculations import max_, min_, count_, remove_empty_strings
+
+class HistogramFeatures(Features):
+
+    @classmethod
+    def analyze(cls):
+        for f in range(cls.nb):
+            feature = Students.get_one_feature(f)
+            cls.make_calculations(feature)
+    
+    @staticmethod
+    def make_calculations(data):
+        info = {"Count" : count_(data)}
+        data = remove_empty_strings(data)
+        if info["Count"] > 0 and count_(data, "numbers") == info["Count"]:
+            info["Max"] = max_(data)
+            info["Min"] = min_(data)
+        Data.info.append(info)
+
 
 def get_grades(courses, g, h, r, s):
     for course in courses:
@@ -17,6 +36,10 @@ def get_grades(courses, g, h, r, s):
         h.get_grades(course)
         r.get_grades(course)
         s.get_grades(course)
+    
+    HistogramFeatures.analyze()
+    for course in courses:
+        Hogwarts.normalize_grades(course)
 
 def set_labels(course, g, h, r, s):
     g.set_label(course)
@@ -66,6 +89,7 @@ def main():
     get_grades(courses, g, h, r, s)
     set_labels(courses[0], g, h, r, s)
     plot(courses[1:], g, h, r, s)
+
     next(histogram)
 
 
@@ -74,8 +98,9 @@ if __name__ == "__main__":
         main()
     except AssertionError:
         print("Example usage: ./histogram.py dataset_train.csv")
-    except (StopIteration, IndexError, ValueError):
-        print("Check that your table isn't empty.\n"
+    except (StopIteration, IndexError, ValueError) as ex:
+        print(f"{type(ex).__name__}\n"
+              "Check that your table isn't empty.\n"
               "That it has all info about the student (6 first columns),\n"
               "at least one course (starting from 7th column)\n"
               "and at least one student (row)")

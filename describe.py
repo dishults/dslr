@@ -101,14 +101,15 @@ class Features:
         cls.total_width = sum_(cls.width) + PRINTED
 
 def main():
-    try:
-        assert len_(sys.argv) == 2
-        data = Data(sys.argv[1])
-        Features.analyze()
-        print(data)
-
-    except AssertionError:
-        print("Example usage: ./describe.py dataset_train.csv")
+    assert len_(sys.argv) == 2
+    data = Data(sys.argv[1])
+    Features.analyze()
+    print(data)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except AssertionError:
+        print("Example usage: ./describe.py dataset_train.csv")
+    except (FileNotFoundError, StopIteration):
+        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")

@@ -30,33 +30,25 @@ class HistogramFeatures(Features):
         Data.info.append(info)
 
 
-def get_grades(courses, g, h, r, s):
+def get_grades(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
     for course in courses:
-        g.get_grades(course)
-        h.get_grades(course)
-        r.get_grades(course)
-        s.get_grades(course)
+        for house in gryffindor, hufflepuff, ravenclaw, slytherin:
+            house.get_grades(course)
     
     HistogramFeatures.analyze()
     for course in courses:
-        Hogwarts.normalize_grades(course)
+        Hogwarts.normalize_grades(course)    
 
-def set_labels(course, g, h, r, s):
-    g.set_label(course)
-    h.set_label(course)
-    r.set_label(course)
-    s.set_label(course)
-
-def plot(courses, g, h, r, s):
+def plot(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
+    for house in gryffindor, hufflepuff, ravenclaw, slytherin:
+        house.set_label(courses[0])
     position = 5
-
-    for course in courses:
-        g.plot(position, g.grades[course])
-        h.plot(position, h.grades[course])
-        r.plot(position, r.grades[course])
-        s.plot(position, s.grades[course])
-        plt.bar(position + 5, 0, width=0)
+    
+    for course in courses[1:]:
+        for house in gryffindor, hufflepuff, ravenclaw, slytherin:
+            house.plot(position, house.grades[course])
         position += 5
+        plt.bar(position, 0, width=0)
 
 def make_histogram(courses):
     fig = plt.figure(figsize=(18, 7))
@@ -74,22 +66,17 @@ def main():
     assert len(sys.argv) == 2
 
     Data(sys.argv[1])
-    if Students.nb == 0:
-        raise ValueError
-        
-    g = Gryffindor()
-    h = Hufflepuff()
-    r = Ravenclaw()
-    s = Slytherin()
+    if Students.nb == 0: raise ValueError
+
+    gryffindor, hufflepuff, ravenclaw, slytherin = \
+        Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()
 
     courses = Features.titles[6:]
     histogram = make_histogram(courses)
     next(histogram)
 
-    get_grades(courses, g, h, r, s)
-    set_labels(courses[0], g, h, r, s)
-    plot(courses[1:], g, h, r, s)
-
+    get_grades(courses, gryffindor, hufflepuff, ravenclaw, slytherin)
+    plot(courses, gryffindor, hufflepuff, ravenclaw, slytherin)
     next(histogram)
 
 
@@ -98,9 +85,9 @@ if __name__ == "__main__":
         main()
     except AssertionError:
         print("Example usage: ./histogram.py dataset_train.csv")
-    except (StopIteration, IndexError, ValueError) as ex:
-        print(f"{type(ex).__name__}\n"
-              "Check that your table isn't empty.\n"
-              "That it has all info about the student (6 first columns),\n"
+    except (FileNotFoundError, StopIteration):
+        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+    except (IndexError, ValueError):
+        print("Check that your dataset has all info about the student (6 first columns),\n"
               "at least one course (starting from 7th column)\n"
               "and at least one student (row)")

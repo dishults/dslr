@@ -27,12 +27,7 @@ class Plot():
             grades = Students.get_one_feature(course_nb)
 
             grades = [abs(grade) if grade != '' else 0 for grade in grades]
-
-            max_grade = max_(grades)
-            normalize = lambda grade: (grade * 100) // max_grade
-            if (len(grades) > 100):
-                grades = [percentile_(grades, p) for p in range(1, 100)]
-            cls.grades[course] = [normalize(grade) for grade in grades if grade != 0]
+            cls.grades[course] = [int(str(grade).replace('.', '')[:10]) if grade != '' else 0 for grade in grades]
 
     @classmethod
     def find_similar_features(cls, fig):
@@ -40,7 +35,11 @@ class Plot():
         for course_x in cls.courses:
             for course_y in cls.courses[c:]:
                 diff = set(cls.grades[course_x]) - set(cls.grades[course_y])
-                five_percent = (len(cls.grades[course_y]) * 5) // 100
+                length = (len(cls.grades[course_x]) + len(cls.grades[course_y])) // 2
+                if (length > 1 and length < 20):
+                    five_percent = 1
+                else:
+                    five_percent = (length * 5) // 100
                 if len(diff) <= five_percent:
                     fig.suptitle(f"Two similar features:\n{course_x} - {course_y}")
                     return
@@ -48,12 +47,20 @@ class Plot():
 
     @classmethod
     def scatter(cls):
-        i = 1
+        x = 1
+        normalize = lambda grade: (grade * 100) // max_grade
         for course in cls.courses:
             grades = cls.grades[course]
-            position = [i] * len(grades)
+            if (len(grades) < 100):
+                grades = grades
+            else:
+                max_grade = max_(grades)
+                grades = [percentile_(grades, p) for p in range(1, 100)]
+                grades = [normalize(grade) for grade in grades if grade != 0]
+            grades = set(grades)
+            position = [x] * len(grades)
             plt.scatter(position, list(grades))
-            i += 1
+            x += 1
 
 
 def main():
@@ -62,14 +69,14 @@ def main():
     Data(sys.argv[1])
     if Students.nb == 0: raise ValueError
 
-    fig = plt.figure(figsize=(18, 7))
+    fig = plt.figure(figsize=(10, 7))
 
     Plot.get_courses()
     Plot.get_grades()
     Plot.scatter()
     Plot.find_similar_features(fig)
 
-    plt.ylabel("Scores range", fontsize='large')
+    plt.ylabel("Grades", fontsize='large')
     plt.yticks([])
     plt.xticks(list(range(1, len(Plot.courses) + 1)), Plot.courses)
     fig.autofmt_xdate()

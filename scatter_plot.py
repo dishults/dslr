@@ -8,12 +8,11 @@ import sys
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
-from calculations import max_, min_, mean_, percentile_, sort_
+from calculations import max_, percentile_
 
 class Plot():
 
-    courses = []
+    courses = ()
     grades = {}
 
     @classmethod
@@ -22,12 +21,12 @@ class Plot():
 
     @classmethod
     def get_grades(cls):
+        normalize = lambda grade: int(str(grade).replace('.', '')[:10])
         for course in cls.courses:
             course_nb = Features.titles.index(course)
             grades = Students.get_one_feature(course_nb)
-
             grades = [abs(grade) if grade != '' else 0 for grade in grades]
-            cls.grades[course] = [int(str(grade).replace('.', '')[:10]) if grade != '' else 0 for grade in grades]
+            cls.grades[course] = [normalize(grade) for grade in grades]
 
     @classmethod
     def find_similar_features(cls, fig):
@@ -83,13 +82,13 @@ def main():
     plt.show()
 
 if __name__ == "__main__":
-    #try:
-    main()
-    #except AssertionError:
-    #    print("Example usage: ./scatter_plot.py dataset_train.csv")
-    #except (FileNotFoundError, StopIteration):
-    #    print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
-    #except (IndexError, ValueError):
-    #    print("Check that your dataset has all info about the student (6 first columns),\n"
-    #          "at least two courses (starting from 7th column)\n"
-    #          "and at least one student (row)")
+    try:
+        main()
+    except AssertionError:
+        print("Example usage: ./scatter_plot.py dataset_train.csv")
+    except (FileNotFoundError, StopIteration):
+        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+    except (IndexError, ValueError):
+        print("Check that your dataset has all info about the student (6 first columns),\n"
+              "at least two courses (starting from 7th column)\n"
+              "and at least one student (row)")

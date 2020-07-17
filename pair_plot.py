@@ -7,7 +7,8 @@ import sys
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-import numpy as np
+from histogram import get_grades as get_grades_for_hist
+from hogwarts import Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 
 class Plot:
 
@@ -24,47 +25,55 @@ class Plot:
             course_nb = Features.titles.index(course)
             grades = Students.get_one_feature(course_nb)
             cls.grades[course] = [grade if grade != '' else 0 for grade in grades]
+        
+        cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin = \
+            Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()
+        get_grades_for_hist(cls.courses, cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin)
 
     @classmethod
-    def scatter(cls):
-        ncourses = len(cls.courses)
-        npairs = ncourses * (ncourses - 1) // 2
-        print("npairs: ", npairs)
-        nrows = npairs ** 0.5
-        if nrows % 1 > 0:
-            nrows = int(nrows)
-            ncols = npairs / nrows
-            if ncols % 1 > 0:
-                ncols += 1
-            ncols = int(ncols)
-        else:
-            ncols = int(nrows)
-            
-        #print("size: ", nrows, ncols)
-        fig, axs = plt.subplots(nrows, ncols, figsize=(15, 10))
-        fig.suptitle("Courses pairs")
-        c = 1
+    def pair(cls):
+        ncourses = len(cls.courses)            
+        fig, axs = plt.subplots(ncourses, ncourses, figsize=(15, 9))
         row = 0
-        col = 0
-        for course_x in cls.courses:
-            for course_y in cls.courses[c:]:
-                x = cls.grades[course_x]
-                y = cls.grades[course_y]
-
-                axs[row, col].plot(x, y)
-
-                axs[row, col].set_ylabel(course_y)
-                axs[row, col].set_xlabel(course_x)
+        for course_y in cls.courses:
+            col = 0
+            for course_x in cls.courses:
+                x, y = cls.grades[course_x], cls.grades[course_y]
+                if (course_x == course_y):
+                    cls.make_histogram(axs[row, col], course_x)
+                else:
+                    axs[row, col].scatter(x, y, s=1)
                 axs[row, col].set_yticks([])
                 axs[row, col].set_xticks([])
-
-                #print(row, col)
                 col += 1
-                if col == ncols:
-                    row += 1
-                    col = 0
-            c += 1
+            row += 1
+        cls.set_labels(fig, axs)
 
+    @classmethod
+    def make_histogram(cls, axs, course):
+        for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+            axs.bar(0 + house.position, house.grades[course], color=house.color, width=1)
+
+
+    @classmethod
+    def set_labels(cls, fig, axs):
+        fig.legend([0, 1, 2, 3],
+                    labels=[
+                        cls.gryffindor.name, cls.hufflepuff.name, 
+                        cls.ravenclaw.name, cls.slytherin.name],
+                    loc='lower left',
+                    borderaxespad=0.1)
+
+        row = 0
+        for course in cls.courses:
+            axs[row, 0].set_ylabel(course, rotation=30, ha='right')
+            row += 1
+
+        col = 0
+        for course in cls.courses:
+            axs[-1, col].set_xlabel(course, rotation=30, ha='right')
+            col += 1
+        
 
 def main():
     assert len(sys.argv) == 2
@@ -74,7 +83,9 @@ def main():
 
     Plot.get_courses()
     Plot.get_grades()
-    Plot.scatter()
+    Plot.pair()
+    plt.subplots_adjust(top = 1, bottom = 0.15, right = 1, left = 0.15, 
+        hspace = 0, wspace = 0)
     plt.show()
 
 if __name__ == "__main__":

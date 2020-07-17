@@ -7,7 +7,8 @@ class Hogwarts:
 
     houses = []
 
-    def __init__(self, color, position):
+    def __init__(self, name, color, position):
+        self.name = name
         self.color = color
         self.position=position
         if not self.houses:
@@ -47,14 +48,14 @@ class Gryffindor(Hogwarts):
     grades = {}
 
     def __init__(self):
-        super().__init__('maroon', 1)
+        super().__init__("Gryffindor", 'maroon', 1)
     
     def get_grades(self, course):
         grades = super().get_grades("Gryffindor", course)
         self.grades[course] = mean_(grades)
     
     def set_label(self, course):
-        super().plot(0, self.grades[course], label="Gryffindor")
+        super().plot(0, self.grades[course], label=self.name)
 
 
 class Hufflepuff(Hogwarts):
@@ -62,14 +63,14 @@ class Hufflepuff(Hogwarts):
     grades = {}
 
     def __init__(self):
-        super().__init__('orange', 2)
+        super().__init__("Hufflepuff", 'orange', 2)
 
     def get_grades(self, course):
         grades = super().get_grades("Hufflepuff", course)
         self.grades[course] = mean_(grades)
 
     def set_label(self, course):
-        super().plot(0, self.grades[course], label="Hufflepuff")
+        super().plot(0, self.grades[course], label=self.name)
 
 
 class Ravenclaw(Hogwarts):
@@ -77,14 +78,14 @@ class Ravenclaw(Hogwarts):
     grades = {}
     
     def __init__(self):
-        super().__init__('blue', 3)
+        super().__init__("Ravenclaw", 'blue', 3)
 
     def get_grades(self, course):
         grades = super().get_grades("Ravenclaw", course)
         self.grades[course] = mean_(grades)
 
     def set_label(self, course):
-        super().plot(0, self.grades[course], label="Ravenclaw")
+        super().plot(0, self.grades[course], label=self.name)
 
 
 class Slytherin(Hogwarts):
@@ -92,11 +93,11 @@ class Slytherin(Hogwarts):
     grades = {}
     
     def __init__(self):
-        super().__init__('green', 4)
+        super().__init__("Slytherin", 'green', 4)
 
     def get_grades(self, course):
         grades = super().get_grades("Slytherin", course)
         self.grades[course] = mean_(grades)
 
     def set_label(self, course):
-        super().plot(0, self.grades[course], label="Slytherin")
+        super().plot(0, self.grades[course], label=self.name)

@@ -7,7 +7,7 @@ import sys
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-from histogram import get_grades as get_grades_for_hist
+from histogram import get_grades as get_grades_for_histogram
 from hogwarts import Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 
 class Plot:
@@ -28,12 +28,15 @@ class Plot:
         
         cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin = \
             Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()
-        get_grades_for_hist(cls.courses, cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin)
+
+        get_grades_for_histogram(cls.courses, 
+                                cls.gryffindor, cls.hufflepuff, 
+                                cls.ravenclaw, cls.slytherin)
 
     @classmethod
     def pair(cls):
-        ncourses = len(cls.courses)            
-        fig, axs = plt.subplots(ncourses, ncourses, figsize=(15, 9))
+        course_nb = len(cls.courses)            
+        fig, axs = plt.subplots(course_nb, course_nb, figsize=(15, 9))
         row = 0
         for course_y in cls.courses:
             col = 0
@@ -52,15 +55,19 @@ class Plot:
     @classmethod
     def make_histogram(cls, axs, course):
         for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
-            axs.bar(0 + house.position, house.grades[course], color=house.color, width=1)
-
+            x, y = house.position, house.grades[course]
+            axs.bar(x, y, color=house.color, width=1)
 
     @classmethod
     def set_labels(cls, fig, axs):
-        fig.legend([0, 1, 2, 3],
-                    labels=[
-                        cls.gryffindor.name, cls.hufflepuff.name, 
-                        cls.ravenclaw.name, cls.slytherin.name],
+        """Set label for each Hogwarts house and each course
+
+        Keyword arguments:
+        fig -- object to manipulate figure general appearence
+        axs -- object to manipulate x, y axes
+        """
+        fig.legend([cls.gryffindor.name, cls.hufflepuff.name,
+                    cls.ravenclaw.name, cls.slytherin.name],
                     loc='lower left',
                     borderaxespad=0.1)
 
@@ -73,7 +80,7 @@ class Plot:
         for course in cls.courses:
             axs[-1, col].set_xlabel(course, rotation=30, ha='right')
             col += 1
-        
+
 
 def main():
     assert len(sys.argv) == 2
@@ -84,18 +91,19 @@ def main():
     Plot.get_courses()
     Plot.get_grades()
     Plot.pair()
-    plt.subplots_adjust(top = 1, bottom = 0.15, right = 1, left = 0.15, 
-        hspace = 0, wspace = 0)
+    plt.subplots_adjust(top=1, bottom=0.15,
+                        right=1, left=0.15,
+                        hspace=0, wspace=0)
     plt.show()
 
 if __name__ == "__main__":
-    #try:
-    main()
-    #except AssertionError:
-    #    print("Example usage: ./scatter_plot.py dataset_train.csv")
-    #except (FileNotFoundError, StopIteration):
-    #    print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
-    #except (IndexError, ValueError):
-    #    print("Check that your dataset has all info about the student (6 first columns),\n"
-    #          "at least two courses (starting from 7th column)\n"
-    #          "and at least one student (row)")
+    try:
+        main()
+    except AssertionError:
+        print("Example usage: ./pair_plot.py dataset_train.csv")
+    except (FileNotFoundError, StopIteration):
+        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+    except (IndexError, ValueError):
+        print("Check that your dataset has all info about the student (6 first columns),\n"
+              "at least two courses (starting from 7th column)\n"
+              "and at least one student (row)")

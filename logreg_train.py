@@ -4,7 +4,7 @@ import numpy as np
 import sklearn.metrics as check
 
 from describe import Data, Students, Features
-from logreg_predict import Predict
+from logreg_predict import Predict, HOUSES
 
 class LogisticRegression:
     
@@ -35,64 +35,45 @@ class LogisticRegression:
             theta = np.zeros(theta_nb)
             for _ in range(self.interations):
                 theta -= self.gradient_descent(X, theta, y_ova, m)
-            self.theta.append((theta, house))
-
-    def predict(self, X):
-        X = np.insert(X, 0, 1, axis=1)
-        Y = []
-        for x in X:
-            probability_of_y = []
-            for theta, y in self.theta:
-                h = Predict.h(x, theta)
-                probability_of_y.append((h, y))
-            h, y = max(probability_of_y)
-            Y.append(y)
-        return Y
+            self.theta.append(theta) # just theta without house?
 
     @staticmethod
     def find_perfect_fit():
-        combo = {}
+        """Find the best 5 courses for model training"""
 
+        combo = {}
         courses_nb = len(Courses.courses)
         c = 0
-        c1 = 0
         grades, Y_original = Courses.grades_normalized, Courses.Y
-        while c1 < courses_nb:
-            c2 = c1 + 1
-            while  c2 < courses_nb:
-                c3 = c2 + 1
-                while c3 < courses_nb:
-                    c4 = c3 + 1
-                    while c4 < courses_nb:
-                        c5 = c4 + 1
-                        while c5 < courses_nb:
+        for c1 in range(courses_nb):
+            for c2 in range(c1 + 1, courses_nb):
+                for c3 in range(c2 + 1, courses_nb):
+                    for c4 in range(c3 + 1, courses_nb):
+                        for c5 in range(c4 + 1, courses_nb):
                             X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
                             model = LogisticRegression()
                             model.fit(X, Y_original)
-                            Y_predicted = model.predict(X)
+                            Y_predicted = Predict.predict(X, model.theta)
                             accuracy = check.accuracy_score(Y_original, Y_predicted)
                             combo[c] = {
                                 "combo" : [c1, c2, c3, c4, c5],
                                 "accuracy" : accuracy
                             }
-                            print(c1, c2, c3, c4, c5, "\t", "." * int(accuracy * 100), accuracy)
+                            print(c1, c2, c3, c4, c5, "\t", 
+                                    "." * int(accuracy * 100), accuracy)
                             c += 1
-                            c5 += 1
-                        c4 += 1
-                    c3 += 1
-                c2 += 1
-            c1 += 1
         found = combo[0]
         for c in range(1, len(combo)):
-            if combo[c]["accuracy"]["all"] > found["accuracy"]["all"]:
+            if combo[c]["accuracy"] > found["accuracy"]:
                 found = combo[c]
         return found
 
 
 class Courses():
 
-    houses = ("Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin")
-    courses = []
+    courses = ("Herbology", "Defense Against the Dark Arts",
+                        "Divination", "Ancient Runes", "Transfiguration")
+    analized = []
     grades_normalized = []
     Y = []
     m = 0
@@ -102,11 +83,11 @@ class Courses():
         self.index = Features.titles.index(course)
         self.avg = Data.info[self.index]["Mean"]
         self.range = Data.info[self.index]["Max"] - Data.info[self.index]["Min"]
-        Courses.courses.append(self)
+        Courses.analized.append(self)
 
-    @staticmethod
-    def get_courses(courses):
-        for course in courses:
+    @classmethod
+    def get_courses(cls):
+        for course in cls.courses:
             Courses(course)
 
     @classmethod
@@ -117,51 +98,73 @@ class Courses():
 
         for grades in Students.students:
             normalized = []
-            for course in cls.courses:
+            for course in cls.analized:
                 try:
                     normalized.append((grades[course.index] - course.avg) / course.range)
                 except:
                     normalized.append(0)
 
             cls.grades_normalized.append(normalized)
-            cls.Y.append(cls.houses.index(grades[1]))
+            cls.Y.append(HOUSES.index(grades[1]))
             cls.m += 1
 
-   
-def main():
 
-    assert len(sys.argv) == 2
-
+def get_data():
     Data(sys.argv[1])
     if Students.nb == 0: raise ValueError
     Features.analyze()
 
-    courses = ("Herbology", "Defense Against the Dark Arts",
-                "Divination", "Ancient Runes", "Transfiguration")
-
-    #courses = Features.titles[6:]
-    
-    Courses.get_courses(courses)
+def get_courses():
+    Courses.get_courses()
     Courses.get_normalized_grades()
-    model = LogisticRegression()
+    return LogisticRegression()
+
+
+def bonus_main():
+    """Find 5 best courses for model training"""
+
+    assert len(sys.argv) == 3 and sys.argv[2] == "-f"
+    get_data()
+    courses = Features.titles[6:]
+    Courses.courses = courses
+    model = get_courses()
+
+    found = model.find_perfect_fit()
+    c = found["combo"]
+    print(found, f"\nCourses:\n{c[0]} - {courses[c[0]]}",
+            f"\n{c[1]} - {courses[c[1]]}\n{c[2]} - {courses[c[2]]}",
+            f"\n{c[3]} - {courses[c[3]]}\n{c[4]} - {courses[c[4]]}")
+
+def main():
+    assert len(sys.argv) == 2
+    get_data()
+    model = get_courses()
 
     X, Y_original = Courses.grades_normalized, Courses.Y
     model.fit(X, Y_original)
-    Y_predicted = model.predict(X)
+    Y_predicted = Predict.predict(X, model.theta)
     accuracy = check.accuracy_score(Y_original, Y_predicted)
     print(f"Finished training. Precision of algorithm is {accuracy * 100} %")
 
-    #found = model.find_perfect_fit()
-    #c = found["combo"]
-    #print(found, f"\nCourses:\n-{courses[c[0]]}\n-{courses[c[0]]}\n-{courses[c[0]]}\n-{courses[c[0]]}\n-{courses[c[0]]}")
-
     with open("weights.csv", 'w') as res:
         writer = csv.writer(res)
+        writer.writerow(["thetas"])
         for theta in model.theta:
-            writer.writerow(theta[0])
-        for i in range(len(Courses.courses)):
-            writer.writerow([Courses.courses[i].avg, Courses.courses[i].range])
-
+            writer.writerow(theta)
+        writer.writerow(["course index", "average", "range"])
+        for i in range(len(Courses.analized)):
+            course = Courses.analized[i]
+            writer.writerow([course.index, course.avg, course.range])
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except AssertionError:
+        try:
+            bonus_main()
+        except AssertionError:
+            print("Example usage: ./logreg_train.py dataset_train.csv [-f]")
+    except (FileNotFoundError, StopIteration):
+        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+    except (IndexError, ValueError):
+        print("Check that your downloaded dataset is correct and hasn't been altered\n")

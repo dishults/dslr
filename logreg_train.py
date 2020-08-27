@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""
+Train through gradient descent multiple sets of parameters theta for 
+one-vs-all logistic regression
+to sort students into Hogwarts houses
+based on grades from best combination of 5 courses
+"""
+
 import sys, csv
 import numpy as np
 import sklearn.metrics as check
@@ -12,12 +19,12 @@ class LogisticRegression:
         self.alpha = learning_rate
         self.interations = max_interations
         
-    def gradient_descent(self, X, theta, y, m):
+    def gradient_descent(self, X, theta, Y, m):
         """Update theta values through vectorized implementation of GD"""
 
-        z = X.dot(theta)
-        h = Predict.g(z)
-        gradient = np.dot(X.T, (h - y)) / m
+        Z = X.dot(theta)
+        H = Predict.g(Z)
+        gradient = np.dot(X.T, (H - Y)) / m
         return self.alpha * gradient
     
     def fit(self, X, Y):
@@ -51,7 +58,7 @@ class LogisticRegression:
                     for c4 in range(c3 + 1, courses_nb):
                         for c5 in range(c4 + 1, courses_nb):
                             X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
-                            model = LogisticRegression()
+                            model = LogisticRegression(max_interations=150)
                             model.fit(X, Y_original)
                             Y_predicted = Predict.predict(X, model.theta)
                             accuracy = check.accuracy_score(Y_original, Y_predicted)
@@ -72,7 +79,7 @@ class LogisticRegression:
 class Courses():
 
     courses = ("Herbology", "Defense Against the Dark Arts",
-                        "Divination", "Ancient Runes", "Transfiguration")
+                        "Divination", "Ancient Runes", "Flying")
     analized = []
     grades_normalized = []
     Y = []
@@ -117,8 +124,6 @@ def get_data():
 def get_courses():
     Courses.get_courses()
     Courses.get_normalized_grades()
-    return LogisticRegression()
-
 
 def bonus_main():
     """Find 5 best courses for model training"""
@@ -127,7 +132,8 @@ def bonus_main():
     get_data()
     courses = Features.titles[6:]
     Courses.courses = courses
-    model = get_courses()
+    get_courses()
+    model = LogisticRegression()
 
     found = model.find_perfect_fit()
     c = found["combo"]
@@ -138,7 +144,8 @@ def bonus_main():
 def main():
     assert len(sys.argv) == 2
     get_data()
-    model = get_courses()
+    get_courses()
+    model = LogisticRegression()
 
     X, Y_original = Courses.grades_normalized, Courses.Y
     model.fit(X, Y_original)
@@ -167,4 +174,4 @@ if __name__ == "__main__":
     except (FileNotFoundError, StopIteration):
         print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
     except (IndexError, ValueError):
-        print("Check that your downloaded dataset is correct and hasn't been altered\n")
+        print("Check that your downloaded dataset is correct and hasn't been altered")

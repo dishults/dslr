@@ -8,7 +8,7 @@ import sys
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-from calculations import max_, percentile_
+from DSCRB.calculations import max_, percentile_
 
 class Plot():
 

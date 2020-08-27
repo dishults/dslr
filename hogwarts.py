@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-from calculations import mean_
+from DSCRB.calculations import mean_
 
 class Hogwarts:
 
@@ -14,11 +14,11 @@ class Hogwarts:
         if not self.houses:
             self.houses = Students.get_one_feature(1)
 
-    def get_grades(self, house, course):
+    def get_grades(self, course):
         course_nb = Features.titles.index(course)
         grades = Students.get_one_feature(course_nb)
         grades = [grade if grade != '' else 0 for grade in grades]
-        return [grades[i] for i in range(len(grades)) if self.houses[i] == house]
+        return [grades[i] for i in range(len(grades)) if self.houses[i] == self.name]
 
     @staticmethod
     def normalize_grades(course, max_range=100):
@@ -51,7 +51,7 @@ class Gryffindor(Hogwarts):
         super().__init__("Gryffindor", 'maroon', 1)
     
     def get_grades(self, course):
-        grades = super().get_grades("Gryffindor", course)
+        grades = super().get_grades(course)
         self.grades[course] = mean_(grades)
     
     def set_label(self, course):
@@ -66,7 +66,7 @@ class Hufflepuff(Hogwarts):
         super().__init__("Hufflepuff", 'orange', 2)
 
     def get_grades(self, course):
-        grades = super().get_grades("Hufflepuff", course)
+        grades = super().get_grades(course)
         self.grades[course] = mean_(grades)
 
     def set_label(self, course):
@@ -81,7 +81,7 @@ class Ravenclaw(Hogwarts):
         super().__init__("Ravenclaw", 'blue', 3)
 
     def get_grades(self, course):
-        grades = super().get_grades("Ravenclaw", course)
+        grades = super().get_grades(course)
         self.grades[course] = mean_(grades)
 
     def set_label(self, course):
@@ -96,7 +96,7 @@ class Slytherin(Hogwarts):
         super().__init__("Slytherin", 'green', 4)
 
     def get_grades(self, course):
-        grades = super().get_grades("Slytherin", course)
+        grades = super().get_grades(course)
         self.grades[course] = mean_(grades)
 
     def set_label(self, course):

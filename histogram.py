@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
-from calculations import max_, min_, count_, remove_empty_strings
+from DSCRB.calculations import max_, min_, count_, remove_empty_strings
 
 class HistogramFeatures(Features):
 

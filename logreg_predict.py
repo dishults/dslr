@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Perform a multi-classifier using a logistic regression one-vs-all
+Sort students into Hogwarts houses
 """
 
 import sys, csv
 import numpy as np
 
-from describe import Data, Students, Features
+from describe import Data, Students
+from DSCRB.calculations import max_
 
 HOUSES = ("Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin")
 
@@ -15,13 +16,13 @@ class Predict:
     def __init__(self, weights_csv):
         with open(weights_csv) as file:
             data = csv.reader(file)
-            assert next(data)[0] == "thetas"
+            if next(data)[0] != "thetas": raise FileExistsError
             self.theta = []
             for _ in range(4):
                 theta = np.array(next(data)).astype(float)
                 self.theta.append(theta)
 
-            assert next(data)[0] == "course index"
+            if next(data)[0] != "course index": raise FileExistsError
             self.courses = []
             for _ in range(5):
                 course = next(data)
@@ -54,7 +55,7 @@ class Predict:
             for t in theta:
                 h = Predict.h(x, t)
                 probability_of_y.append(h)
-            y_max = max(probability_of_y)
+            y_max = max_(probability_of_y)
             Y.append(probability_of_y.index(y_max))
         return Y
 
@@ -68,10 +69,9 @@ class Predict:
             for course in self.courses:
                 grade = student[course["index"]]
                 try:
-                    grade = normalize(grade, course["avg"], course["range"])
+                    grades.append(normalize(grade, course["avg"], course["range"]))
                 except:
-                    grade = 0
-                grades.append(grade)
+                    grades.append(0)
             self.grades.append(grades)
 
 
@@ -92,8 +92,10 @@ if __name__ == "__main__":
     try:
         main()
     except AssertionError:
-        print("Example usage: ./logreg_predict.py dataset_test.csv weights.csv")
+        print("Example usage: ./logreg_predict.py dataset_test.csv weights.csv.")
     except (FileNotFoundError, StopIteration):
-        print(f"Dataset file '{sys.argv[1]}' or '{sys.argv[2]}' doesn't exist, is empty or incorrect")
+        print(f"Dataset file '{sys.argv[1]}' or '{sys.argv[2]}' doesn't exist, is empty or incorrect.")
+    except (FileExistsError):
+        print(f"Something went wrong with your '{sys.argv[2]}' file. Double check it's correct.")
     except (IndexError, ValueError):
-        print("Check that your downloaded dataset is correct and hasn't been altered\n")
+        print("Check that your downloaded dataset is correct and hasn't been altered.")

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
 from histogram import get_grades as get_grades_for_histogram
-from hogwarts import Gryffindor, Hufflepuff, Ravenclaw, Slytherin
+from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 
 class Plot:
 
@@ -20,18 +20,19 @@ class Plot:
         cls.courses = Features.titles[6:]
 
     @classmethod
-    def get_grades(cls):
-        for course in cls.courses:
-            course_nb = Features.titles.index(course)
-            grades = Students.get_one_feature(course_nb)
-            cls.grades[course] = [grade if grade != '' else 0 for grade in grades]
-        
+    def get_grades(cls):        
         cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin = \
             Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()
 
         get_grades_for_histogram(cls.courses, 
                                 cls.gryffindor, cls.hufflepuff, 
                                 cls.ravenclaw, cls.slytherin)
+
+        for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+            house.raw_grades = {}
+        for course in cls.courses:
+            for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+                house.raw_grades[course] = Hogwarts.get_grades(house, course)
 
     @classmethod
     def pair(cls):
@@ -41,11 +42,10 @@ class Plot:
         for course_y in cls.courses:
             col = 0
             for course_x in cls.courses:
-                x, y = cls.grades[course_x], cls.grades[course_y]
                 if (course_x == course_y):
                     cls.make_histogram(axs[row, col], course_x)
                 else:
-                    axs[row, col].scatter(x, y, s=1)
+                    cls.make_scatter_plot(axs[row, col], course_x, course_y)
                 axs[row, col].set_yticks([])
                 axs[row, col].set_xticks([])
                 col += 1
@@ -57,6 +57,12 @@ class Plot:
         for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
             x, y = house.position, house.grades[course]
             axs.bar(x, y, color=house.color, width=1)
+
+    @classmethod
+    def make_scatter_plot(cls, axs, course_x, course_y):
+        for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+            x, y = house.raw_grades[course_x], house.raw_grades[course_y]
+            axs.scatter(x, y, s=1, c=house.color)
 
     @classmethod
     def set_labels(cls, fig, axs):

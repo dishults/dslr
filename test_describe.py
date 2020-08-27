@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 from describe import Data, Features
-from d_print import DP
+from DSCRB.print import DP
 
 DP -= 1
 

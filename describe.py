@@ -6,8 +6,9 @@ display information for all numerical features
 
 import csv, sys, os
 
-from calculations import *
-from d_print import Print, DP, PRINTED
+from DSCRB.calculations import *
+from DSCRB.print import DP, PRINTED
+import DSCRB.print as print_
 
 PADDING = 4
 
@@ -29,8 +30,8 @@ class Data:
             pass
         i = 0
         while i < Features.nb:
-            Print.features(self, Features, columns, i)
-            i = Print.calculations(self, Features, columns, i)
+            print_.features(Features, columns, i)
+            i = print_.calculations(self, Features, columns, i)
             if i < Features.nb:
                 print("\n")
         return ''

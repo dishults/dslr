@@ -12,78 +12,70 @@ from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 
 class Plot:
 
-    courses = ()
-    grades = {}
+    def __init__(self):
+        self.courses = Features.titles[6:]
+        self.grades = {}
 
-    @classmethod
-    def get_courses(cls):
-        cls.courses = Features.titles[6:]
-
-    @classmethod
-    def get_grades(cls):        
-        cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin = \
+    def get_grades(self):        
+        self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin = \
             Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()
 
-        get_grades_for_histogram(cls.courses, 
-                                cls.gryffindor, cls.hufflepuff, 
-                                cls.ravenclaw, cls.slytherin)
+        get_grades_for_histogram(self.courses, 
+                                self.gryffindor, self.hufflepuff, 
+                                self.ravenclaw, self.slytherin)
 
-        for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+        for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
             house.raw_grades = {}
-        for course in cls.courses:
-            for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+        for course in self.courses:
+            for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
                 house.raw_grades[course] = Hogwarts.get_grades(house, course)
 
-    @classmethod
-    def pair(cls):
-        course_nb = len(cls.courses)            
+    def pair(self):
+        course_nb = len(self.courses)            
         fig, axs = plt.subplots(course_nb, course_nb, figsize=(15, 9))
         row = 0
-        for course_y in cls.courses:
+        for course_y in self.courses:
             col = 0
-            for course_x in cls.courses:
+            for course_x in self.courses:
                 if (course_x == course_y):
-                    cls.make_histogram(axs[row, col], course_x)
+                    self.make_histogram(axs[row, col], course_x)
                 else:
-                    cls.make_scatter_plot(axs[row, col], course_x, course_y)
+                    self.make_scatter_plot(axs[row, col], course_x, course_y)
                 axs[row, col].set_yticks([])
                 axs[row, col].set_xticks([])
                 col += 1
             row += 1
-        cls.set_labels(fig, axs)
+        self.set_labels(fig, axs)
 
-    @classmethod
-    def make_histogram(cls, axs, course):
-        for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+    def make_histogram(self, axs, course):
+        for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
             x, y = house.position, house.grades[course]
             axs.bar(x, y, color=house.color, width=1)
 
-    @classmethod
-    def make_scatter_plot(cls, axs, course_x, course_y):
-        for house in cls.gryffindor, cls.hufflepuff, cls.ravenclaw, cls.slytherin:
+    def make_scatter_plot(self, axs, course_x, course_y):
+        for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
             x, y = house.raw_grades[course_x], house.raw_grades[course_y]
             axs.scatter(x, y, s=1, c=house.color)
 
-    @classmethod
-    def set_labels(cls, fig, axs):
+    def set_labels(self, fig, axs):
         """Set label for each Hogwarts house and each course
 
         Keyword arguments:
         fig -- object to manipulate figure general appearence
         axs -- object to manipulate x, y axes
         """
-        fig.legend([cls.gryffindor.name, cls.hufflepuff.name,
-                    cls.ravenclaw.name, cls.slytherin.name],
+        fig.legend([self.gryffindor.name, self.hufflepuff.name,
+                    self.ravenclaw.name, self.slytherin.name],
                     loc='lower left',
                     borderaxespad=0.1)
 
         row = 0
-        for course in cls.courses:
+        for course in self.courses:
             axs[row, 0].set_ylabel(course, rotation=30, ha='right')
             row += 1
 
         col = 0
-        for course in cls.courses:
+        for course in self.courses:
             axs[-1, col].set_xlabel(course, rotation=30, ha='right')
             col += 1
 
@@ -94,9 +86,9 @@ def main():
     Data(sys.argv[1])
     if Students.nb == 0: raise ValueError
 
-    Plot.get_courses()
-    Plot.get_grades()
-    Plot.pair()
+    plot = Plot()
+    plot.get_grades()
+    plot.pair()
     plt.subplots_adjust(top=1, bottom=0.15,
                         right=1, left=0.15,
                         hspace=0, wspace=0)

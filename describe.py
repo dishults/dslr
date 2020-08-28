@@ -73,26 +73,28 @@ class Features:
         cls.width = [len_(word) + PADDING for word in cls.titles]
 
     @classmethod
-    def analyze(cls):
+    def analyze(cls, depth=2):
         for f in range(cls.nb):
             feature = Students.get_one_feature(f)
-            cls.make_calculations(feature)
-        cls.update_width()
+            cls.make_calculations(feature, depth)
     
     @staticmethod
-    def make_calculations(data):
+    def make_calculations(data, depth):
         info = {"Count" : count_(data)}
         data = remove_empty_strings(data)
         if info["Count"] > 0 and count_(data, "numbers") == info["Count"]:
-            sort_(data)
-            info["Mean"] = mean_(data)
-            info["Std"] = std_(data, info["Mean"])
             info["Min"] = min_(data)
-            info["25%"] = percentile_(data, 25)
-            info["50%"] = percentile_(data, 50)
-            info["75%"] = percentile_(data, 75)
             info["Max"] = max_(data)
-        info["width"] = max_([len_(num) for num in info.values()]) + (1+DP) + PADDING
+            if depth > 0:
+                info["Mean"] = mean_(data)
+            if depth > 1:            
+                sort_(data)
+                info["Std"] = std_(data, info["Mean"])
+                info["25%"] = percentile_(data, 25)
+                info["50%"] = percentile_(data, 50)
+                info["75%"] = percentile_(data, 75)
+        if depth > 1:
+            info["width"] = max_([len_(num) for num in info.values()]) + (1+DP) + PADDING
         Data.info.append(info)
 
     @classmethod
@@ -105,6 +107,7 @@ def main():
     assert len_(sys.argv) == 2
     data = Data(sys.argv[1])
     Features.analyze()
+    Features.update_width()
     print(data)
 
 if __name__ == "__main__":

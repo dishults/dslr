@@ -119,7 +119,7 @@ class Courses():
 def get_data():
     Data(sys.argv[1])
     if Students.nb == 0: raise ValueError
-    Features.analyze()
+    Features.analyze(depth=1)
 
 def get_courses():
     Courses.get_courses()

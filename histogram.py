@@ -10,34 +10,15 @@ import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
-from DSCRB.calculations import max_, min_, count_, remove_empty_strings
-
-class HistogramFeatures(Features):
-
-    @classmethod
-    def analyze(cls):
-        for f in range(cls.nb):
-            feature = Students.get_one_feature(f)
-            cls.make_calculations(feature)
-    
-    @staticmethod
-    def make_calculations(data):
-        info = {"Count" : count_(data)}
-        data = remove_empty_strings(data)
-        if info["Count"] > 0 and count_(data, "numbers") == info["Count"]:
-            info["Max"] = max_(data)
-            info["Min"] = min_(data)
-        Data.info.append(info)
-
 
 def get_grades(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
     for course in courses:
         for house in gryffindor, hufflepuff, ravenclaw, slytherin:
             house.get_grades(course)
     
-    HistogramFeatures.analyze()
+    Features.analyze(depth=0)
     for course in courses:
-        Hogwarts.normalize_grades(course)    
+        Hogwarts.normalize_grades(course)
 
 def plot(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
     for house in gryffindor, hufflepuff, ravenclaw, slytherin:

@@ -76,26 +76,27 @@ class Features:
     def analyze(cls, depth=2):
         for f in range(cls.nb):
             feature = Students.get_one_feature(f)
-            cls.make_calculations(feature, depth)
-    
+            info = { "Count" : count_(feature) }
+            feature = remove_empty_strings(feature)
+            if info["Count"] > 0 and count_(feature, "numbers") == info["Count"]:
+                info = cls.make_calculations(info, feature, depth)
+            if depth > 1:
+                info["width"] = max_([len_(num) for num in info.values()]) + (1+DP) + PADDING
+            Data.info.append(info)
+
     @staticmethod
-    def make_calculations(data, depth):
-        info = {"Count" : count_(data)}
-        data = remove_empty_strings(data)
-        if info["Count"] > 0 and count_(data, "numbers") == info["Count"]:
-            info["Min"] = min_(data)
-            info["Max"] = max_(data)
-            if depth > 0:
-                info["Mean"] = mean_(data)
-            if depth > 1:            
-                sort_(data)
-                info["Std"] = std_(data, info["Mean"])
-                info["25%"] = percentile_(data, 25)
-                info["50%"] = percentile_(data, 50)
-                info["75%"] = percentile_(data, 75)
-        if depth > 1:
-            info["width"] = max_([len_(num) for num in info.values()]) + (1+DP) + PADDING
-        Data.info.append(info)
+    def make_calculations(info, data, depth):
+        info["Min"] = min_(data)
+        info["Max"] = max_(data)
+        if depth > 0:
+            info["Mean"] = mean_(data)
+        if depth > 1:            
+            sort_(data)
+            info["Std"] = std_(data, info["Mean"])
+            info["25%"] = percentile_(data, 25)
+            info["50%"] = percentile_(data, 50)
+            info["75%"] = percentile_(data, 75)
+        return info
 
     @classmethod
     def update_width(cls):

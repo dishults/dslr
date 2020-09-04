@@ -1,29 +1,44 @@
+class Array:
+
+    def __init__(self, data):
+        self.data = data
+        self.transpose()
+
+    def __str__(self):
+        return str(self.data)
+
+    def astype(self, ctype):
+        try:
+            for i in range(len(self.data)):
+                for j in range(len(self.data[i])):
+                    self.data[i][j] = ctype(self.data[i][j])
+        # if only one row
+        except:
+            for i in range(len(self.data)):
+                self.data[i] = ctype(self.data[i])
+        self.transpose()
+        return self
+
+    def transpose(self):
+        self.T = []
+        try:
+            for j in range(len(self.data[0])):
+                new = []
+                for i in range(len(self.data)):
+                    new.append(self.data[i][j])
+                self.T.append(new)
+        # if only one row
+        except:
+            for i in range(len(self.data)):
+                self.T.append([self.data[i]])    
+
+
 class Numpy:
 
-    def __init__(self):
-        self.array = Array
-        self.zeros = self.make_zeros
-        self.insert_one = self.make_insert
-        self.dot = self.make_dot    
+    array = Array
 
     @staticmethod
-    def make_zeros(shape):        
-        return Array([0] * shape).astype(float)
-
-    @staticmethod
-    def make_insert(X):
-        """Same as np.insert(X, 0, 1, axis=1)"""
-        try:
-            ctype = type(X.data[0])
-            copy = []
-            for x in X.data:
-                copy.append([ctype(1)] + x)
-            return Array(copy)
-        except:
-            return X
-
-    @staticmethod
-    def make_dot(A, B):
+    def dot(A, B):
         """Matrix-Matrix Multiplication.
         From Wikipedia: the entry Cij of the product is obtained by multiplying 
         term-by-term the entries of the ith row of A and the jth column of B, 
@@ -37,8 +52,10 @@ class Numpy:
         """
 
         C = []
-        A = A.data
-        B = B.data
+        if type(A) != list:
+            A = A.data
+        if type(B) != list:
+            B = B.data
         # rows of A
         for i in range(len(A)): 
             dot = []
@@ -52,38 +69,28 @@ class Numpy:
             C.append(dot)
         return Array(C)
 
-class Array(Numpy):
+    @staticmethod
+    def insert(arr, obj, values, axis=None):
+        """Insert column of [values] at [obj] position in [arr] and return the copy.
+        Variables are preserved for code comparability to numpy,
+        though the method handles only axis=1.
+        Example:
+            np.insert(X, 0, 1, axis=1)
+        """
 
-    def __init__(self, data):
-        super().__init__()
-        self.data = data
-        self.T = self.transpose
-        self.astype = self.convert_to_type
-
-    def __str__(self):
-        return str(self.data)
-
-    def transpose(self):
+        try:
+            dtype = type(arr.data[0][obj])
+        except TypeError:
+            import sys, traceback
+            tb = traceback.format_exc()
+            sys.exit(f"{tb}\nCannot insert {values} into array, because it's one-dimensional")
         copy = []
-        try:
-            for j in range(len(self.data[0])):
-                new = []
-                for i in range(len(self.data)):
-                    new.append(self.data[i][j])
-                copy.append(new)
-        # if only one row
-        except:
-            for i in range(len(self.data)):
-                copy.append([self.data[i]])
+        for X in arr.data:
+            duplicate = X[:]
+            duplicate.insert(obj, dtype(values))
+            copy.append(duplicate)
         return Array(copy)
-    
-    def convert_to_type(self, ctype):
-        try:
-            for i in range(len(self.data)):
-                for j in range(len(self.data[i])):
-                    self.data[i][j] = ctype(self.data[i][j])
-        # if only one row
-        except:
-            for i in range(len(self.data)):
-                self.data[i] = ctype(self.data[i])
-        return self
+
+    @staticmethod
+    def zeros(shape):        
+        return Array([0] * shape).astype(float)

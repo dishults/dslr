@@ -79,13 +79,18 @@ class Numpy:
         """
 
         try:
-            dtype = type(arr.data[0][obj])
+            array = arr.data
+        except AttributeError:
+            array = arr
+        try:
+            dtype = type(array[0][obj])
         except TypeError:
             import sys, traceback
             tb = traceback.format_exc()
             sys.exit(f"{tb}\nCannot insert {values} into array, because it's one-dimensional")
+
         copy = []
-        for X in arr.data:
+        for X in array:
             duplicate = X[:]
             duplicate.insert(obj, dtype(values))
             copy.append(duplicate)

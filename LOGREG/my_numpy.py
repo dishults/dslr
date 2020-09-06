@@ -3,9 +3,57 @@ class Array:
     def __init__(self, data):
         self.data = data
         self.transpose()
+    
+    def __iter__(self):
+        return iter(self.data)
 
     def __str__(self):
         return str(self.data)
+    
+    def __getitem__(self, item):
+         return self.data[item]
+
+    def __add__(self, other):
+        res = []
+        try:
+            for row in self.data:
+                new = []
+                for item in row:
+                    new.append(item + other)
+                res.append(new)
+        # if only one row
+        except:
+            for item in self.data:
+                new.append(item + other)
+        return Array(res)
+
+    def __sub__(self, other):
+        res = []
+        try:
+            for row in self.data:
+                new = []
+                for item in row:
+                    new.append(item - other)
+                res.append(new)
+        # if only one row
+        except:
+            for item in self.data:
+                new.append(item - other)
+        return Array(res)
+
+    def __mul__(self, other):
+        res = []
+        try:
+            for row in self.data:
+                new = []
+                for item in row:
+                    new.append(item * other)
+                res.append(new)
+        # if only one row
+        except:
+            for item in self.data:
+                new.append(item * other)
+        return Array(res)
 
     def astype(self, ctype):
         try:
@@ -56,17 +104,27 @@ class Numpy:
             A = A.data
         if type(B) != list:
             B = B.data
-        # rows of A
-        for i in range(len(A)): 
-            dot = []
-            # coloums of B
-            for j in range(len(B[0])): 
-                n = 0
-                # rows of B
-                for k in range(len(B)):
-                    n += A[i][k] * B[k][j]
-                dot.append(n)
-            C.append(dot)
+        A_rows = len(A)
+        try:
+            B_columns = len(B[0])
+            B_rows = len(B)
+        except:
+            A_columns = len(A[0])
+        try:
+            for i in range(A_rows): 
+                dot = []
+                for j in range(B_columns): 
+                    n = 0
+                    for k in range(B_rows):
+                        n += A[i][k] * B[k][j]
+                    dot.append(n)
+                C.append(dot)
+        except:
+            for i in range(A_rows): 
+                dot = 0
+                for k in range(A_columns):
+                    dot += A[i][k] * B[k]
+                C.append(dot)
         return Array(C)
 
     @staticmethod

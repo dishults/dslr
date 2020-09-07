@@ -21,15 +21,24 @@ class Tests(unittest.TestCase):
     def test_astype(self, dtype=float):
         self.assertEqual(self.Xn.astype(dtype).tolist(), list(self.Xmy.astype(dtype)))
 
-    def test_dot_2D(self):
+    def test_dot_2D_2D(self):
         original = numpy.dot(self.Xn.T, self.Yn)
         my = my_np.dot(self.Xmy.T, self.Ymy)
         self.assertEqual(original.tolist(), list(my))
 
-    def test_dot_y_1D(self, y=[1, 2]):
+    def test_dot_2D_1D(self, y=[1, 2]):
         original = numpy.dot(self.Xn.T, y)
         my = my_np.dot(self.Xmy.T, y)
         self.assertEqual(original.tolist(), list(my))
+
+    def test_dot_1D_1D(self):
+        Xn = numpy.array(self.x_array[0])
+        Yn = numpy.array(self.y_array[0])
+        Xmy = my_np.array(self.x_array[0])
+        Ymy = my_np.array(self.y_array[0])
+        original = numpy.dot(Xn.T, Yn)
+        my = my_np.dot(Xmy.T, Ymy)
+        self.assertEqual(original, my)
 
     def test_math(self, nb=3):
         original = [(self.Xn+nb).tolist(), (self.Xn-nb).tolist(), (self.Xn*nb).tolist()]

@@ -24,7 +24,7 @@ class Array:
         # if only one row
         except:
             for item in self.data:
-                new.append(item + other)
+                res.append(item + other)
         return Array(res)
 
     def __sub__(self, other):
@@ -38,7 +38,7 @@ class Array:
         # if only one row
         except:
             for item in self.data:
-                new.append(item - other)
+                res.append(item - other)
         return Array(res)
 
     def __mul__(self, other):
@@ -52,7 +52,7 @@ class Array:
         # if only one row
         except:
             for item in self.data:
-                new.append(item * other)
+                res.append(item * other)
         return Array(res)
 
     def astype(self, ctype):
@@ -99,18 +99,15 @@ class Numpy:
           e f ]                           e∗w+f∗y e∗x+f∗z ]
         """
 
-        C = []
         if type(A) != list:
             A = A.data
         if type(B) != list:
             B = B.data
-        A_rows = len(A)
+        C = []
+        A_rows, B_rows = len(A), len(B)
+        # if both A and B are 2D
         try:
             B_columns = len(B[0])
-            B_rows = len(B)
-        except:
-            A_columns = len(A[0])
-        try:
             for i in range(A_rows): 
                 dot = []
                 for j in range(B_columns): 
@@ -120,11 +117,20 @@ class Numpy:
                     dot.append(n)
                 C.append(dot)
         except:
-            for i in range(A_rows): 
+            B_columns = B_rows
+            # if both A and B are 1D
+            if A_rows == B_columns:
                 dot = 0
-                for k in range(A_columns):
-                    dot += A[i][k] * B[k]
-                C.append(dot)
+                for i in range(A_rows):
+                    dot += A[i][0] * B[i]
+                return dot
+            # if A is 2D and B is 1D
+            else:
+                for i in range(A_rows): 
+                    dot = 0
+                    for k in range(B_columns):
+                        dot += A[i][k] * B[k]
+                    C.append(dot)
         return Array(C)
 
     @staticmethod

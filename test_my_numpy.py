@@ -13,13 +13,27 @@ class Tests(unittest.TestCase):
 
     Xmy = my_np.array(x_array)
     Ymy = my_np.array(y_array)
-
+    
     def test_arrays(self):
         self.assertEqual(self.Xn.tolist(), list(self.Xmy))
         self.assertEqual(self.Yn.tolist(), list(self.Ymy))
 
     def test_astype(self, dtype=float):
         self.assertEqual(self.Xn.astype(dtype).tolist(), list(self.Xmy.astype(dtype)))
+
+    def test_exp_int(self, nb=3):
+        original = numpy.exp(nb)
+        my = my_np.exp(nb)
+        self.assertEqual(round(original, 12), round(my, 12))
+
+    def test_exp_list(self):
+        nb_n = numpy.array(self.x_array[0])
+        nb_my = my_np.array(self.x_array[0])
+        original = numpy.exp(nb_n)
+        my = my_np.exp(nb_my)
+        original = [round(nb, 12) for nb in original.tolist()]
+        my = [round(nb, 12) for nb in list(my)]
+        self.assertEqual(original, my)
 
     def test_dot_2D_2D(self):
         original = numpy.dot(self.Xn.T, self.Yn)
@@ -40,9 +54,26 @@ class Tests(unittest.TestCase):
         my = my_np.dot(Xmy.T, Ymy)
         self.assertEqual(original, my)
 
+    def test_array_dot_2D_2D(self):
+        original = self.Xn.dot(self.Yn.T)
+        my = self.Xmy.dot(self.Ymy.T)
+        self.assertEqual(original.tolist(), list(my))
+
+    math = [
+        lambda a, b: a + b,
+        lambda a, b: a - b,
+        lambda a, b: a * b,
+        lambda a, b: a / b,
+        ]
+
     def test_math(self, nb=3):
-        original = [(self.Xn+nb).tolist(), (self.Xn-nb).tolist(), (self.Xn*nb).tolist()]
-        my = [list(self.Xmy+nb), list(self.Xmy-nb), list(self.Xmy*nb)]
+        original = [f(self.Xn, nb).tolist() for f in self.math]
+        my = [list(f(self.Xmy, nb)) for f in self.math]
+        self.assertEqual(original, my)
+
+    def test_rmath(self, nb=3):
+        original = [f(nb, self.Xn).tolist() for f in self.math]
+        my = [list(f(nb, self.Xmy)) for f in self.math]
         self.assertEqual(original, my)
 
     def test_insert_numpy_array(self):

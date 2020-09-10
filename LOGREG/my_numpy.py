@@ -13,47 +13,49 @@ class Array:
     def __getitem__(self, item):
          return self.data[item]
 
-    def __add__(self, other):
+    def math(self, other, f):
+        """Peform math operation [f] (+ - * /) on [self] Array with [other] number.
+
+        Keyword arguments:
+        other -- int or float
+        f -- function with operation (+ - * /) to perform
+        """
         res = []
         try:
             for row in self.data:
                 new = []
                 for item in row:
-                    new.append(item + other)
+                    new.append(f(item, other))
                 res.append(new)
         # if only one row
         except:
             for item in self.data:
-                res.append(item + other)
+                res.append(f(item, other))
         return Array(res)
+
+    def __add__(self, other):
+        return self.math(other, lambda a, b: a + b)
 
     def __sub__(self, other):
-        res = []
-        try:
-            for row in self.data:
-                new = []
-                for item in row:
-                    new.append(item - other)
-                res.append(new)
-        # if only one row
-        except:
-            for item in self.data:
-                res.append(item - other)
-        return Array(res)
+        return self.math(other, lambda a, b: a - b)
 
     def __mul__(self, other):
-        res = []
-        try:
-            for row in self.data:
-                new = []
-                for item in row:
-                    new.append(item * other)
-                res.append(new)
-        # if only one row
-        except:
-            for item in self.data:
-                res.append(item * other)
-        return Array(res)
+        return self.math(other, lambda a, b: a * b)
+
+    def __truediv__(self, other):
+        return self.math(other, lambda a, b: a / b)
+
+    def __radd__(self, other):
+        return self.math(other, lambda a, b: b + a)
+
+    def __rsub__(self, other):
+        return self.math(other, lambda a, b: b - a)
+
+    def __rmul__(self, other):
+        return self.math(other, lambda a, b: b * a)
+
+    def __rtruediv__(self, other):
+        return self.math(other, lambda a, b: b / a)
 
     def astype(self, ctype):
         try:
@@ -78,7 +80,10 @@ class Array:
         # if only one row
         except:
             for i in range(len(self.data)):
-                self.T.append([self.data[i]])    
+                self.T.append([self.data[i]])
+        
+    def dot(self, other):
+        return Numpy.dot(self, other)
 
 
 class Numpy:
@@ -97,6 +102,10 @@ class Numpy:
         [ a b           [ w x           [ a∗w+b∗y a∗x+b∗z
           c d       *     y z ]     =     c∗w+d∗y c∗x+d∗z
           e f ]                           e∗w+f∗y e∗x+f∗z ]
+        
+        Keyword arguments:
+        A - 'Array' object or list with numbers (1 or 2 dimensional)
+        B - 'Array' object or list with numbers (1 or 2 dimensional)
         """
 
         if type(A) != list:
@@ -134,12 +143,36 @@ class Numpy:
         return Array(C)
 
     @staticmethod
+    def exp(x, e=2.718281828459045):
+        """Calculate the exponential of x (e raised to the power of x).
+
+        Keyword arguments:
+        x -- int/float or list.
+        e -- float. The irrational number, also known as Euler’s number.
+             It's approx 2.718281, and is the base of the natural logarithm.
+        """
+        try:
+            return e ** x
+        except:
+            try:
+                data = x.data
+            except:
+                data = x
+            return Array([e ** nb for nb in data])
+
+    @staticmethod
     def insert(arr, obj, values, axis=None):
         """Insert column of [values] at [obj] position in [arr] and return the copy.
         Variables are preserved for code comparability to numpy,
         though the method handles only axis=1.
+
         Example:
             np.insert(X, 0, 1, axis=1)
+        
+        Keyword arguments:
+        arr -- Array to insert into
+        obj -- position in Array
+        values -- int, float or list to insert
         """
 
         try:

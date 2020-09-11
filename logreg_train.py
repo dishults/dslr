@@ -7,11 +7,11 @@ based on grades from best combination of 5 courses
 """
 
 import sys, csv
-import numpy as np
 import sklearn.metrics as check
 
 from describe import Data, Students, Features
 from logreg_predict import Predict, HOUSES
+from LOGREG.my_numpy import Numpy as np
 
 class LogisticRegression:
     
@@ -42,7 +42,7 @@ class LogisticRegression:
             theta = np.zeros(theta_nb)
             for _ in range(self.interations):
                 theta -= self.gradient_descent(X, theta, y_ova, m)
-            self.theta.append(theta) # just theta without house?
+            self.theta.append(theta)
 
     @staticmethod
     def find_perfect_fit():

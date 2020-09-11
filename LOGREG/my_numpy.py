@@ -2,6 +2,7 @@ class Array:
 
     def __init__(self, data):
         self.data = data
+        self.len = len(data)
         self.transpose()
     
     def __iter__(self):
@@ -12,25 +13,33 @@ class Array:
     
     def __getitem__(self, item):
          return self.data[item]
+        
+    def __len__(self):
+        return self.len
 
     def math(self, other, f):
-        """Peform math operation [f] (+ - * /) on [self] Array with [other] number.
+        """Peform math operation [f] (+ - * / **) on [self] and [other].
 
         Keyword arguments:
-        other -- int or float
-        f -- function with operation (+ - * /) to perform
+        other -- int/float or list/Array
+        f -- function with operation (+ - * / **) to perform on [self] and [other]
         """
+
         res = []
+        # if both are 1D arrays (self is Array, other is list or Array)
         try:
-            for row in self.data:
-                new = []
-                for item in row:
-                    new.append(f(item, other))
-                res.append(new)
-        # if only one row
+            assert len(self) == len(other)
+            for i in range(len(other)):
+                res.append(f(self[i], other[i]))
         except:
-            for item in self.data:
-                res.append(f(item, other))
+            # if self is 2D array and other is int/float
+            try:
+                for row in self:
+                    res.append([f(item, other) for item in row])
+            # if self is 1D array and other is int/float
+            except:
+                for item in self:
+                    res.append(f(item, other))
         return Array(res)
 
     def __add__(self, other):
@@ -57,15 +66,26 @@ class Array:
     def __rtruediv__(self, other):
         return self.math(other, lambda a, b: b / a)
 
-    def astype(self, ctype):
+    def __rpow__(self, other):
+        return self.math(other, lambda a, b: b ** a)
+
+    def __isub__(self, other):
+        """self -= other"""
+        return self.__sub__(other)
+    
+    def __neg__(self):
+        """-self"""
+        return self.__mul__(-1)
+
+    def astype(self, dtype=float):
         try:
             for i in range(len(self.data)):
                 for j in range(len(self.data[i])):
-                    self.data[i][j] = ctype(self.data[i][j])
+                    self.data[i][j] = dtype(self.data[i][j])
         # if only one row
         except:
             for i in range(len(self.data)):
-                self.data[i] = ctype(self.data[i])
+                self.data[i] = dtype(self.data[i])
         self.transpose()
         return self
 
@@ -104,14 +124,10 @@ class Numpy:
           e f ]                           e∗w+f∗y e∗x+f∗z ]
         
         Keyword arguments:
-        A - 'Array' object or list with numbers (1 or 2 dimensional)
-        B - 'Array' object or list with numbers (1 or 2 dimensional)
+        A - list or Array with numbers (1 or 2 dimensional)
+        B - list or Array with numbers (1 or 2 dimensional)
         """
 
-        if type(A) != list:
-            A = A.data
-        if type(B) != list:
-            B = B.data
         C = []
         A_rows, B_rows = len(A), len(B)
         # if both A and B are 2D
@@ -147,18 +163,13 @@ class Numpy:
         """Calculate the exponential of x (e raised to the power of x).
 
         Keyword arguments:
-        x -- int/float or list.
-        e -- float. The irrational number, also known as Euler’s number.
-             It's approx 2.718281, and is the base of the natural logarithm.
+        x -- int/float or Array
+        e -- float. The irrational number, also known as Euler’s number
+             It's approx 2.718281, and is the base of the natural logarithm
         """
-        try:
-            return e ** x
-        except:
-            try:
-                data = x.data
-            except:
-                data = x
-            return Array([e ** nb for nb in data])
+
+        return e ** x
+
 
     @staticmethod
     def insert(arr, obj, values, axis=None):
@@ -176,18 +187,14 @@ class Numpy:
         """
 
         try:
-            array = arr.data
-        except AttributeError:
-            array = arr
-        try:
-            dtype = type(array[0][obj])
+            dtype = type(arr[0][obj])
         except TypeError:
             import sys, traceback
             tb = traceback.format_exc()
             sys.exit(f"{tb}\nCannot insert {values} into array, because it's one-dimensional")
 
         copy = []
-        for X in array:
+        for X in arr:
             duplicate = X[:]
             duplicate.insert(obj, dtype(values))
             copy.append(duplicate)

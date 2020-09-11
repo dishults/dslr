@@ -4,10 +4,10 @@ Sort students into Hogwarts houses
 """
 
 import sys, csv
-import numpy as np
 
 from describe import Data, Students
 from DSCRB.calculations import max_
+from LOGREG.my_numpy import Numpy as np
 
 HOUSES = ("Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin")
 

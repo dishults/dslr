@@ -71,9 +71,32 @@ class Tests(unittest.TestCase):
         my = [list(f(self.Xmy, nb)) for f in self.math]
         self.assertEqual(original, my)
 
+        Xn = numpy.array(self.x_array[0])
+        Xmy = my_np.array(self.x_array[0])
+        Y = self.y_array[0]
+        
+        original = [f(Xn, Y).tolist() for f in self.math]
+        my = [list(f(Xmy, Y)) for f in self.math]
+        self.assertEqual(original, my)
+        
+        Xn -= nb
+        Xmy -= nb
+        self.assertEqual(Xn.tolist(), list(Xmy))
+        self.assertEqual((-Xn).tolist(), list(-Xmy))
+
     def test_rmath(self, nb=3):
         original = [f(nb, self.Xn).tolist() for f in self.math]
         my = [list(f(nb, self.Xmy)) for f in self.math]
+        self.assertEqual(original, my)
+
+        Xn = numpy.array(self.x_array[0])
+        Xmy = my_np.array(self.x_array[0])
+        Y = self.y_array[0]
+
+        original = [f(Y, Xn).tolist() for f in self.math]
+        my = [list(f(Y, Xmy)) for f in self.math]
+        original.append((Y ** Xn).tolist())
+        my.append(list(Y ** Xmy))
         self.assertEqual(original, my)
 
     def test_insert_numpy_array(self):

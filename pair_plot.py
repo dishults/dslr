@@ -6,6 +6,8 @@ Script which displays a pair plot
 import sys
 import matplotlib.pyplot as plt
 
+import my_exceptions as error
+
 from describe import Data, Students, Features
 from histogram import get_grades as get_grades_for_histogram
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
@@ -81,10 +83,8 @@ class Plot:
 
 
 def main():
-    assert len(sys.argv) == 2
-
-    Data(sys.argv[1])
-    if Students.nb == 0: raise ValueError
+    if len(sys.argv) != 2: raise error.Usage
+    Data(sys.argv[1], fix_grades=True)
 
     plot = Plot()
     plot.get_grades()
@@ -97,11 +97,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except AssertionError:
-        print("Example usage: ./pair_plot.py dataset_train.csv")
     except (FileNotFoundError, StopIteration):
-        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+        raise error.File
     except (IndexError, ValueError):
-        print("Check that your dataset has all info about the student (6 first columns),\n"
-              "at least two courses (starting from 7th column)\n"
-              "and at least one student (row)")
+        raise error.Dataset

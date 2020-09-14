@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import unittest, numpy
+import unittest
+import numpy
 
 from LOGREG.my_numpy import Numpy as my_np
 

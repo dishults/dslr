@@ -1,11 +1,8 @@
-def len_(x):
+def num_len(x):
     length = 0
-    try:
-        length = len(x)
-    except:
-        while x >= 1:
-            x /= 10
-            length += 1
+    while x >= 1:
+        x /= 10
+        length += 1
     return length
 
 def sum_(numbers):
@@ -16,7 +13,7 @@ def sum_(numbers):
 
 def sort_(numbers):
     try:
-        length = len_(numbers) - 1
+        length = len(numbers) - 1
         start = 0
         while start < length:
             smallest = min_(numbers[start:])
@@ -27,9 +24,6 @@ def sort_(numbers):
             start += 1
     except:
         pass
-
-def remove_empty_strings(data):
-    return [d for d in data if d != '']
 
 def count_(data, what=0):
     count = 0
@@ -45,7 +39,7 @@ def count_(data, what=0):
 
 def mean_(numbers):
     s = sum_(numbers)
-    l = len_(numbers)
+    l = len(numbers)
     if s != 0 and l != 0:
         return s / l
     return 0
@@ -54,7 +48,7 @@ def std_(numbers, mean=0):
     if mean == 0:
         mean = mean_(numbers)
     # Pandas-like std, or remove -1 for numpy-like
-    length = len_(numbers) - 1
+    length = len(numbers) - 1
     return (sum_([(number - mean) ** 2 for number in numbers]) / length) ** 0.5
 
 def min_(numbers):
@@ -69,12 +63,11 @@ def min_(numbers):
 
 def percentile_(numbers, p):
     p /= 100
-    length = len_(numbers)
+    length = len(numbers)
     index = p * (length - 1)
     
     # If index is an int, a precise whole number => no need for guessing
-    if index % 1 * 10 == 0:
-        return numbers[int(index)]
+    if index % 1 * 10 == 0: return numbers[int(index)]
 
     before = int(index)
     after = before + 1

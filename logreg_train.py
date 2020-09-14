@@ -6,8 +6,12 @@ to sort students into Hogwarts houses
 based on grades from best combination of 5 courses
 """
 
-import sys, csv
+import sys
+import csv
+
 import sklearn.metrics as check
+
+import my_exceptions as error
 
 from describe import Data, Students, Features
 from logreg_predict import Predict, HOUSES
@@ -118,7 +122,6 @@ class Courses():
 
 def get_data():
     Data(sys.argv[1])
-    if Students.nb == 0: raise ValueError
     Features.analyze(depth=1)
 
 def get_courses():
@@ -128,7 +131,7 @@ def get_courses():
 def bonus_main():
     """Find 5 best courses for model training"""
 
-    assert len(sys.argv) == 3 and sys.argv[2] == "-f"
+    if len(sys.argv) != 3 or sys.argv[2] != "-f": raise error.Usage(extra=" [-f]")
     get_data()
     courses = Features.titles[6:]
     Courses.courses = courses
@@ -142,7 +145,7 @@ def bonus_main():
             f"\n{c[3]} - {courses[c[3]]}\n{c[4]} - {courses[c[4]]}")
 
 def main():
-    assert len(sys.argv) == 2
+    if len(sys.argv) != 2: bonus_main()
     get_data()
     get_courses()
     model = LogisticRegression()
@@ -166,12 +169,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except AssertionError:
-        try:
-            bonus_main()
-        except AssertionError:
-            print("Example usage: ./logreg_train.py dataset_train.csv [-f]")
     except (FileNotFoundError, StopIteration):
-        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+        raise error.File
     except (IndexError, ValueError):
-        print("Check that your downloaded dataset is correct and hasn't been altered")
+        raise error.Dataset

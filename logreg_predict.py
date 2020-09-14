@@ -3,7 +3,10 @@
 Sort students into Hogwarts houses
 """
 
-import sys, csv
+import sys
+import csv
+
+import my_exceptions as error
 
 from describe import Data, Students
 from DSCRB.calculations import max_
@@ -16,13 +19,13 @@ class Predict:
     def __init__(self, weights_csv):
         with open(weights_csv) as file:
             data = csv.reader(file)
-            if next(data)[0] != "thetas": raise FileExistsError
+            if next(data)[0] != "thetas": raise error.Weights
             self.theta = []
             for _ in range(4):
                 theta = np.array(next(data)).astype(float)
                 self.theta.append(theta)
 
-            if next(data)[0] != "course index": raise FileExistsError
+            if next(data)[0] != "course index": raise error.Weights
             self.courses = []
             for _ in range(5):
                 course = next(data)
@@ -76,7 +79,7 @@ class Predict:
 
 
 def main():
-    assert len(sys.argv) == 3
+    if len(sys.argv) != 3: raise error.Usage(stage="test", extra=" weights.csv")
     p = Predict(sys.argv[2])
     Data(sys.argv[1])
     p.get_grades()
@@ -91,11 +94,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except AssertionError:
-        print("Example usage: ./logreg_predict.py dataset_test.csv weights.csv.")
     except (FileNotFoundError, StopIteration):
-        print(f"Dataset file '{sys.argv[1]}' or '{sys.argv[2]}' doesn't exist, is empty or incorrect.")
-    except (FileExistsError):
-        print(f"Something went wrong with your '{sys.argv[2]}' file. Double check it's correct.")
+        sys.argv[1] += "' or '" + sys.argv[2]
+        raise error.File
     except (IndexError, ValueError):
-        print("Check that your downloaded dataset is correct and hasn't been altered.")
+        raise error.Dataset

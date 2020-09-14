@@ -7,15 +7,27 @@ What are the two features that are similar ?
 import sys
 import matplotlib.pyplot as plt
 
+import my_exceptions as error
+
 from describe import Data, Students, Features
-from DSCRB.calculations import max_, percentile_
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
+from DSCRB.calculations import max_, percentile_
 
 class Plot():
 
     def __init__(self):
         self.courses = Features.titles[6:]
         self.grades = {}
+
+    @staticmethod
+    def remove_incomplete_grades():
+        i = 0
+        while i < Students.nb:
+            if '' in Students.students[i]: 
+                Students.students.pop(i)
+                Students.nb -= 1
+            else:
+                i += 1
 
     def get_grades(self):
 
@@ -24,7 +36,7 @@ class Plot():
         for course in self.courses:
             course_nb = Features.titles.index(course)
             grades = Students.get_one_feature(course_nb)
-            grades = [abs(grade) if grade != '' else 0 for grade in grades]
+            grades = [abs(grade) for grade in grades]
             self.grades[course] = [normalize(grade) for grade in grades]
 
     def find_similar_features(self, fig):
@@ -63,6 +75,7 @@ class Plot():
         plt.xticks(list(range(1, len(self.courses) + 1)), self.courses)
         
     def scatter_similar_features(self):
+        Students.remove_incomplete_grades()
         for house in Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin():
             x = Hogwarts.get_grades(house, self.course_x)
             y = Hogwarts.get_grades(house, self.course_y)
@@ -71,10 +84,8 @@ class Plot():
             plt.ylabel(self.course_y, fontsize='large')
 
 def main():
-    assert len(sys.argv) == 2
-
-    Data(sys.argv[1])
-    if Students.nb == 0: raise ValueError
+    if len(sys.argv) != 2: raise error.Usage
+    Data(sys.argv[1], fix_grades=True)
 
     fig = plt.figure(figsize=(10, 7))
 
@@ -93,11 +104,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except AssertionError:
-        print("Example usage: ./scatter_plot.py dataset_train.csv")
     except (FileNotFoundError, StopIteration):
-        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+        raise error.File
     except (IndexError, ValueError):
-        print("Check that your dataset has all info about the student (6 first columns),\n"
-              "at least two courses (starting from 7th column)\n"
-              "and at least one student (row)")
+        raise error.Dataset

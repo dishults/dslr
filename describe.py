@@ -4,11 +4,16 @@ Take a dataset as a parameter and
 display information for all numerical features
 """
 
-import csv, sys, os
+import csv
+import sys
+import os
 
-from DSCRB.calculations import *
-from DSCRB.print import DP, PRINTED
+import my_exceptions as error
 import DSCRB.print as print_
+
+from DSCRB.calculations import \
+num_len, sum_, sort_, count_, mean_, std_, min_, percentile_, max_
+from DSCRB.print import DP, PRINTED
 
 PADDING = 4
 
@@ -16,12 +21,14 @@ class Data:
 
     info = []
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, fix_grades=False):
         with open(dataset) as file:
             data = csv.reader(file)
             Features(next(data))            
             for student in data:
                 Students(student)
+        if Students.nb == 0: raise ValueError
+        if fix_grades: Students.fix_empty_grades()
 
     def __str__(self, columns=80, lines=24):
         try:
@@ -36,6 +43,7 @@ class Data:
                 print("\n")
         return ''
 
+
 class Students:
 
     students = []
@@ -49,7 +57,7 @@ class Students:
     
     @staticmethod
     def transform(student):
-        for i in range(len_(student)):
+        for i in range(len(student)):
             try:
                 student[i] = float(student[i])
             except:
@@ -58,6 +66,26 @@ class Students:
     @classmethod
     def get_one_feature(cls, f):
         return [cls.students[s][f] for s in range(cls.nb)]
+
+    @classmethod
+    def fix_empty_grades(cls):
+        i = 0
+        while i < cls.nb:
+            if '' in cls.students[i]:
+                empty = cls.students[i].index('')
+                cls.students[i][empty] = 0
+            else:
+                i += 1
+
+    @classmethod
+    def remove_incomplete_grades(cls, incomplete=0):
+        i = 0
+        while i < cls.nb:
+            if incomplete in cls.students[i]: 
+                cls.students.pop(i)
+                cls.nb -= 1
+            else:
+                i += 1
 
 class Features:
 
@@ -68,20 +96,22 @@ class Features:
 
     @classmethod
     def __init__(cls, data):
+        if any(cell.isdigit() for cell in data): raise error.Header
         cls.titles = data
-        cls.nb = len_(cls.titles)
-        cls.width = [len_(word) + PADDING for word in cls.titles]
+        cls.nb = len(cls.titles)
+        cls.width = [len(word) + PADDING for word in cls.titles]
 
     @classmethod
     def analyze(cls, depth=2):
         for f in range(cls.nb):
             feature = Students.get_one_feature(f)
             info = { "Count" : count_(feature) }
-            feature = remove_empty_strings(feature)
+            feature = [f for f in feature if f != '']
             if info["Count"] > 0 and count_(feature, "numbers") == info["Count"]:
                 info = cls.make_calculations(info, feature, depth)
             if depth > 1:
-                info["width"] = max_([len_(num) for num in info.values()]) + (1+DP) + PADDING
+                info["width"] = max_([num_len(num) for num in info.values()])
+                info["width"] += 1 + DP + PADDING
             Data.info.append(info)
 
     @staticmethod
@@ -104,8 +134,9 @@ class Features:
             cls.width[f] = max_([cls.width[f], Data.info[f]["width"]])
         cls.total_width = sum_(cls.width) + PRINTED
 
+
 def main():
-    assert len_(sys.argv) == 2
+    if len(sys.argv) != 2: raise error.Usage
     data = Data(sys.argv[1])
     Features.analyze()
     Features.update_width()
@@ -114,7 +145,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except AssertionError:
-        print("Example usage: ./describe.py dataset_train.csv")
     except (FileNotFoundError, StopIteration):
-        print(f"Dataset file '{sys.argv[1]}' doesn't exist, is empty or incorrect")
+        raise error.File
+    except (IndexError, ValueError):
+        raise error.Dataset

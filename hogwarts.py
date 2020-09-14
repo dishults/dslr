@@ -17,7 +17,6 @@ class Hogwarts:
     def get_grades(self, course):
         course_nb = Features.titles.index(course)
         grades = Students.get_one_feature(course_nb)
-        grades = [grade if grade != '' else 0 for grade in grades]
         return [grades[i] for i in range(len(grades)) if self.houses[i] == self.name]
 
     @staticmethod

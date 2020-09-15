@@ -77,15 +77,21 @@ class Students:
             else:
                 i += 1
 
-    @classmethod
-    def remove_incomplete_grades(cls, incomplete=0):
+    @staticmethod
+    def remove_incomplete_grades(courses, inplace=False):
         i = 0
-        while i < cls.nb:
-            if incomplete in cls.students[i]: 
-                cls.students.pop(i)
-                cls.nb -= 1
+        grades_nb = len(courses[0])
+        if inplace == False:
+            courses = [course[:] for course in courses]
+        while i < grades_nb:
+            grades = [course[i] for course in courses]
+            if 0 in grades:
+                [course.pop(i) for course in courses]
+                grades_nb -= 1
             else:
                 i += 1
+        return courses
+
 
 class Features:
 

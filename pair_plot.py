@@ -57,6 +57,7 @@ class Plot:
     def make_scatter_plot(self, axs, course_x, course_y):
         for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
             x, y = house.raw_grades[course_x], house.raw_grades[course_y]
+            x, y = Students.remove_incomplete_grades(courses=[x, y])
             axs.scatter(x, y, s=1, c=house.color)
 
     def set_labels(self, fig, axs):

@@ -19,16 +19,6 @@ class Plot():
         self.courses = Features.titles[6:]
         self.grades = {}
 
-    @staticmethod
-    def remove_incomplete_grades():
-        i = 0
-        while i < Students.nb:
-            if '' in Students.students[i]: 
-                Students.students.pop(i)
-                Students.nb -= 1
-            else:
-                i += 1
-
     def get_grades(self):
 
         def normalize(grade): return int(str(grade).replace('.', '')[:10])
@@ -75,10 +65,10 @@ class Plot():
         plt.xticks(list(range(1, len(self.courses) + 1)), self.courses)
         
     def scatter_similar_features(self):
-        Students.remove_incomplete_grades()
         for house in Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin():
             x = Hogwarts.get_grades(house, self.course_x)
             y = Hogwarts.get_grades(house, self.course_y)
+            Students.remove_incomplete_grades(courses=[x, y], inplace=True)
             plt.scatter(x, y, c=house.color)
             plt.xlabel(self.course_x, fontsize='large')
             plt.ylabel(self.course_y, fontsize='large')

@@ -7,6 +7,8 @@ PRINTED = 5
 # Decemal places
 DP = 6
 
+PADDING = 4
+
 def __print_align(info, width):
     print(f"{info:>{width}}", end="")
 

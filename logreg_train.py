@@ -8,20 +8,18 @@ based on grades from best combination of 5 courses
 
 import sys
 import csv
-
 import sklearn.metrics as check
 
 import my_exceptions as error
-
 from describe import Data, Students, Features
 from logreg_predict import Predict, HOUSES
 from LOGREG.my_numpy import Numpy as np
 
 class LogisticRegression:
     
-    def __init__(self, learning_rate=0.1, max_interations=200):
+    def __init__(self, learning_rate=0.1, max_iterations=200):
         self.alpha = learning_rate
-        self.interations = max_interations
+        self.iterations = max_iterations
         
     def gradient_descent(self, X, theta, Y, m):
         """Update theta values through vectorized implementation of GD"""
@@ -44,7 +42,7 @@ class LogisticRegression:
         for house in range(4):
             y_ova = one_vs_all(house)
             theta = np.zeros(theta_nb)
-            for _ in range(self.interations):
+            for _ in range(self.iterations):
                 theta -= self.gradient_descent(X, theta, y_ova, m)
             self.theta.append(theta)
 
@@ -62,7 +60,7 @@ class LogisticRegression:
                     for c4 in range(c3 + 1, courses_nb):
                         for c5 in range(c4 + 1, courses_nb):
                             X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
-                            model = LogisticRegression(max_interations=150)
+                            model = LogisticRegression(max_iterations=150)
                             model.fit(X, Y_original)
                             Y_predicted = Predict.predict(X, model.theta)
                             accuracy = check.accuracy_score(Y_original, Y_predicted)

@@ -10,9 +10,7 @@ DP -= 1
 
 class Tests(unittest.TestCase):
 
-    #dataset = "datasets/small_set.csv"
     dataset = "datasets/dataset_train.csv"
-    #dataset = "datasets/dataset_test.csv"
 
     my = Data(dataset)
     p_data = pd.read_csv(dataset)
@@ -29,10 +27,14 @@ class Tests(unittest.TestCase):
         "Max" : p_data.max(numeric_only=True)
     }
 
-    def test_describe(self):
-        os.system("./describe.py datasets/small_set.csv > test1.txt")
-        self.assertFalse(os.system("diff test0.txt test1.txt"))
-        os.system("rm -rf test1.txt")
+    def test_compare_test0_test1(self):
+        if os.path.isfile("./test0.txt"):
+            os.system(f"./describe.py {self.dataset} > test1.txt")
+            self.assertFalse(os.system("diff test0.txt test1.txt"))
+            os.system("rm -rf test1.txt")
+        else:
+            os.system(f"./describe.py {self.dataset} > test0.txt")
+            self.skipTest("No test0 to compare to. Created one for future tests")
 
     def test_count(self, key="Count"):
         for i in range(len(self.my.info)):

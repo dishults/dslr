@@ -13,22 +13,19 @@ import DSCRB.print as print_
 
 from DSCRB.calculations import \
 num_len, sum_, sort_, count_, mean_, std_, min_, percentile_, max_
-from DSCRB.print import DP, PRINTED
-
-PADDING = 4
+from DSCRB.print import DP, PRINTED, PADDING
 
 class Data:
 
     info = []
 
-    def __init__(self, dataset, fix_grades=False):
+    def __init__(self, dataset):
         with open(dataset) as file:
             data = csv.reader(file)
             Features(next(data))            
             for student in data:
                 Students(student)
         if Students.nb == 0: raise ValueError
-        if fix_grades: Students.fix_empty_grades()
 
     def __str__(self, columns=80, lines=24):
         try:
@@ -64,8 +61,15 @@ class Students:
                 pass
     
     @classmethod
-    def get_one_feature(cls, f):
-        return [cls.students[s][f] for s in range(cls.nb)]
+    def get_one_feature(cls, f, house=None):
+        """Get one feature(column) or all grades for one subject
+        for a specific Hogwarts house
+        """
+
+        students = cls.students
+        if not house:
+            return [students[s][f] for s in range(cls.nb)]
+        return [students[s][f] for s in range(cls.nb) if students[s][1] == house]
 
     @classmethod
     def fix_empty_grades(cls):
@@ -104,14 +108,14 @@ class Features:
     def __init__(cls, data):
         if any(cell.isdigit() for cell in data): raise error.Header
         cls.titles = data
-        cls.nb = len(cls.titles)
-        cls.width = [len(word) + PADDING for word in cls.titles]
+        cls.nb = len(data)
+        cls.width = [len(title) + PADDING for title in data]
 
     @classmethod
     def analyze(cls, depth=2):
         for f in range(cls.nb):
             feature = Students.get_one_feature(f)
-            info = { "Count" : count_(feature) }
+            info = {"Count" : count_(feature)}
             feature = [f for f in feature if f != '']
             if info["Count"] > 0 and count_(feature, "numbers") == info["Count"]:
                 info = cls.make_calculations(info, feature, depth)

@@ -5,17 +5,17 @@ class Array:
         self.len = len(data)
         self.transpose()
     
+    def __getitem__(self, item):
+         return self.data[item]
+
     def __iter__(self):
         return iter(self.data)
 
-    def __str__(self):
-        return str(self.data)
-    
-    def __getitem__(self, item):
-         return self.data[item]
-        
     def __len__(self):
         return self.len
+
+    def __str__(self):
+        return str(self.data)        
 
     def math(self, other, f):
         """Peform math operation [f] (+ - * / **) on [self] and [other].
@@ -89,6 +89,9 @@ class Array:
         self.transpose()
         return self
 
+    def dot(self, other):
+        return Numpy.dot(self, other)
+
     def transpose(self):
         self.T = []
         try:
@@ -100,10 +103,7 @@ class Array:
         # if only one row
         except:
             for i in range(len(self.data)):
-                self.T.append([self.data[i]])
-        
-    def dot(self, other):
-        return Numpy.dot(self, other)
+                self.T.append([self.data[i]])        
 
 
 class Numpy:
@@ -169,7 +169,6 @@ class Numpy:
         """
 
         return e ** x
-
 
     @staticmethod
     def insert(arr, obj, values, axis=None):

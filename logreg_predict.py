@@ -7,7 +7,6 @@ import sys
 import csv
 
 import my_exceptions as error
-
 from describe import Data, Students
 from DSCRB.calculations import max_
 from LOGREG.my_numpy import Numpy as np
@@ -35,7 +34,7 @@ class Predict:
                      "range" : float(course[2])})
 
     @staticmethod
-    def h(X, theta=[0, 0, 0, 0, 0]):
+    def h(X, theta):
         """Hypothesis Function"""
 
         z = np.dot(theta.T, X)
@@ -48,7 +47,7 @@ class Predict:
         return 1 / (1 + np.exp(-z))
 
     @staticmethod
-    def predict(X, theta=[0, 0, 0, 0, 0]):
+    def predict(X, theta):
         """Predict Hogwarts houses(Y) for given grades(X)"""
 
         X = np.insert(X, 0, 1, axis=1)

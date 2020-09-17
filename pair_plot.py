@@ -7,9 +7,7 @@ import sys
 import matplotlib.pyplot as plt
 
 import my_exceptions as error
-
 from describe import Data, Students, Features
-from histogram import get_grades as get_grades_for_histogram
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 
 class Plot:
@@ -17,20 +15,15 @@ class Plot:
     def __init__(self):
         self.courses = Features.titles[6:]
         self.grades = {}
-
-    def get_grades(self):        
         self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin = \
             Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()
 
-        get_grades_for_histogram(self.courses, 
-                                self.gryffindor, self.hufflepuff, 
-                                self.ravenclaw, self.slytherin)
-
-        for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
-            house.raw_grades = {}
+    def get_grades(self):
+        Features.analyze(depth=0)
+        Students.fix_empty_grades()
         for course in self.courses:
             for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
-                house.raw_grades[course] = Hogwarts.get_grades(house, course)
+                house.get_grades(course, normalized_average=True)
 
     def pair(self):
         course_nb = len(self.courses)            
@@ -51,12 +44,12 @@ class Plot:
 
     def make_histogram(self, axs, course):
         for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
-            x, y = house.position, house.grades[course]
+            x, y = house.position, house.normalized_average[course]
             axs.bar(x, y, color=house.color, width=1)
 
     def make_scatter_plot(self, axs, course_x, course_y):
         for house in self.gryffindor, self.hufflepuff, self.ravenclaw, self.slytherin:
-            x, y = house.raw_grades[course_x], house.raw_grades[course_y]
+            x, y = house.grades[course_x], house.grades[course_y]
             x, y = Students.remove_incomplete_grades(courses=[x, y])
             axs.scatter(x, y, s=1, c=house.color)
 
@@ -85,7 +78,7 @@ class Plot:
 
 def main():
     if len(sys.argv) != 2: raise error.Usage
-    Data(sys.argv[1], fix_grades=True)
+    Data(sys.argv[1])
 
     plot = Plot()
     plot.get_grades()

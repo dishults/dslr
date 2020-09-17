@@ -8,7 +8,6 @@ import sys
 import matplotlib.pyplot as plt
 
 import my_exceptions as error
-
 from describe import Data, Students, Features
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 from DSCRB.calculations import max_, percentile_
@@ -23,6 +22,7 @@ class Plot():
 
         def normalize(grade): return int(str(grade).replace('.', '')[:10])
 
+        Students.fix_empty_grades()
         for course in self.courses:
             course_nb = Features.titles.index(course)
             grades = Students.get_one_feature(course_nb)
@@ -66,16 +66,18 @@ class Plot():
         
     def scatter_similar_features(self):
         for house in Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin():
-            x = Hogwarts.get_grades(house, self.course_x)
-            y = Hogwarts.get_grades(house, self.course_y)
+            house.get_grades(self.course_x)
+            house.get_grades(self.course_y)
+            x = house.grades[self.course_x]
+            y = house.grades[self.course_y]
             Students.remove_incomplete_grades(courses=[x, y], inplace=True)
             plt.scatter(x, y, c=house.color)
-            plt.xlabel(self.course_x, fontsize='large')
-            plt.ylabel(self.course_y, fontsize='large')
+        plt.xlabel(self.course_x, fontsize='large')
+        plt.ylabel(self.course_y, fontsize='large')
 
 def main():
     if len(sys.argv) != 2: raise error.Usage
-    Data(sys.argv[1], fix_grades=True)
+    Data(sys.argv[1])
 
     fig = plt.figure(figsize=(10, 7))
 

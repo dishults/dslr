@@ -9,19 +9,16 @@ import sys
 import matplotlib.pyplot as plt
 
 import my_exceptions as error
-
 from describe import Data, Students, Features
 from hogwarts import Hogwarts, Gryffindor, Hufflepuff, Ravenclaw, Slytherin
 
 def get_grades(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
+    Features.analyze(depth=0)
+    Students.fix_empty_grades()
     for course in courses:
         for house in gryffindor, hufflepuff, ravenclaw, slytherin:
-            house.get_grades(course)
+            house.get_grades(course, normalized_average=True)
     
-    Features.analyze(depth=0)
-    for course in courses:
-        Hogwarts.normalize_grades(course)
-
 def plot(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
     for house in gryffindor, hufflepuff, ravenclaw, slytherin:
         house.set_label(courses[0])
@@ -29,7 +26,7 @@ def plot(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
     
     for course in courses[1:]:
         for house in gryffindor, hufflepuff, ravenclaw, slytherin:
-            house.plot(position, house.grades[course])
+            house.plot(position, house.normalized_average[course])
         position += 5
         plt.bar(position, 0, width=0)
 
@@ -47,7 +44,7 @@ def make_histogram(courses):
 
 def main():
     if len(sys.argv) != 2: raise error.Usage
-    Data(sys.argv[1], fix_grades=True)
+    Data(sys.argv[1])
 
     gryffindor, hufflepuff, ravenclaw, slytherin = \
         Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin()

@@ -33,8 +33,9 @@ class Plot():
         c = 1
         for course_x in self.courses:
             for course_y in self.courses[c:]:
-                diff = set(self.grades[course_x]) - set(self.grades[course_y])
-                length = (len(self.grades[course_x]) + len(self.grades[course_y])) // 2
+                grades_x, grades_y = self.grades[course_x], self.grades[course_y]
+                diff = set(grades_x) - set(grades_y)
+                length = (len(grades_x) + len(grades_y)) // 2
                 if (length > 1 and length < 20):
                     five_percent = 1
                 else:
@@ -45,7 +46,7 @@ class Plot():
                     self.course_y = course_y
             c += 1
 
-    def scatter_all_features(self):
+    def scatter_all_features(self, fig):
 
         def normalize(grade): return (grade * 100) // max_grade
 
@@ -63,17 +64,27 @@ class Plot():
         plt.ylabel("Grades", fontsize='large')
         plt.yticks([])
         plt.xticks(list(range(1, len(self.courses) + 1)), self.courses)
-        
+        fig.autofmt_xdate()
+        plt.show()
+
     def scatter_similar_features(self):
-        for house in Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin():
-            house.get_grades(self.course_x)
-            house.get_grades(self.course_y)
-            x = house.grades[self.course_x]
-            y = house.grades[self.course_y]
-            Students.remove_incomplete_grades(courses=[x, y], inplace=True)
-            plt.scatter(x, y, c=house.color)
+        houses = Students.get_one_feature(1)
+        houses = [house for house in houses if house != 0]
+        if len(houses) > 0:
+            for house in Gryffindor(), Hufflepuff(), Ravenclaw(), Slytherin():
+                house.get_grades(self.course_x)
+                house.get_grades(self.course_y)
+                house.scatter(self.course_x, self.course_y)
+        else:
+            x = self.grades[self.course_x]
+            y = self.grades[self.course_y]
+            x, y = Students.remove_incomplete_grades(courses=[x, y])
+            plt.scatter(x, y)
+        plt.yticks([]), plt.xticks([])
         plt.xlabel(self.course_x, fontsize='large')
         plt.ylabel(self.course_y, fontsize='large')
+        plt.show()
+
 
 def main():
     if len(sys.argv) != 2: raise error.Usage
@@ -84,19 +95,16 @@ def main():
     plot = Plot()
     plot.get_grades()
     plot.find_similar_features(fig)
-
-    plot.scatter_all_features()
-    fig.autofmt_xdate()
-    plt.show()
-
-    if plot.course_x and plot.course_y:
+    plot.scatter_all_features(fig)   
+    if 'course_x' in plot.__dict__ and 'course_y' in plot.__dict__:
         plot.scatter_similar_features()
-        plt.show()
+    else:
+        print("No similar features found")
 
 if __name__ == "__main__":
     try:
         main()
     except (FileNotFoundError, StopIteration):
         raise error.File
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, KeyError, TypeError):
         raise error.Dataset

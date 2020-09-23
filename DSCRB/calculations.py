@@ -5,12 +5,6 @@ def num_len(x):
         length += 1
     return length
 
-def sum_(numbers):
-    total = 0
-    for number in numbers:
-        total += number
-    return total
-
 def sort_(numbers):
     try:
         length = len(numbers) - 1
@@ -38,7 +32,7 @@ def count_(data, what=0):
     return count
 
 def mean_(numbers):
-    s = sum_(numbers)
+    s = sum(numbers)
     l = len(numbers)
     if s != 0 and l != 0:
         return s / l
@@ -49,17 +43,15 @@ def std_(numbers, mean=0):
         mean = mean_(numbers)
     # Pandas-like std, or remove -1 for numpy-like
     length = len(numbers) - 1
-    return (sum_([(number - mean) ** 2 for number in numbers]) / length) ** 0.5
+    variance = sum([(number - mean) ** 2 for number in numbers]) / length
+    return variance ** 0.5
 
 def min_(numbers):
-    try:
-        minimum = numbers[0]
-        for number in numbers:
-            if number < minimum:
-                minimum = number
-        return minimum
-    except:
-        return numbers
+    minimum = numbers[0]
+    for number in numbers:
+        if number < minimum:
+            minimum = number
+    return minimum
 
 def percentile_(numbers, p):
     p /= 100

@@ -16,28 +16,30 @@ HOUSES = ("Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin")
 class Predict:
 
     def __init__(self, weights_csv):
-        with open(weights_csv) as file:
-            data = csv.reader(file)
+        with open(weights_csv) as weights:
+            data = csv.reader(weights)
             if next(data)[0] != "thetas": raise error.Weights
             self.theta = []
             for _ in range(4):
                 theta = np.array(next(data)).astype(float)
                 self.theta.append(theta)
 
-            if next(data)[0] != "course index": raise error.Weights
+            if next(data) != ["course index", "average", "range"]: 
+                raise error.Weights
             self.courses = []
             for _ in range(5):
                 course = next(data)
-                self.courses.append(
-                    {"index" : int(course[0]),
-                     "avg"   : float(course[1]),
-                     "range" : float(course[2])})
+                self.courses.append({
+                    "index" : int(course[0]),
+                    "avg"   : float(course[1]),
+                    "range" : float(course[2]),
+                    })
 
     @staticmethod
-    def h(X, theta):
+    def h(X, thetas):
         """Hypothesis Function"""
 
-        z = np.dot(theta.T, X)
+        z = np.dot(thetas.T, X)
         return Predict.g(z)
 
     @staticmethod
@@ -47,15 +49,15 @@ class Predict:
         return 1 / (1 + np.exp(-z))
 
     @staticmethod
-    def predict(X, theta):
+    def predict(X, all_thetas):
         """Predict Hogwarts houses(Y) for given grades(X)"""
 
         X = np.insert(X, 0, 1, axis=1)
         Y = []
         for x in X:
             probability_of_y = []
-            for t in theta:
-                h = Predict.h(x, t)
+            for y_thetas in all_thetas:
+                h = Predict.h(x, y_thetas)
                 probability_of_y.append(h)
             y_max = max_(probability_of_y)
             Y.append(probability_of_y.index(y_max))
@@ -71,7 +73,9 @@ class Predict:
             for course in self.courses:
                 grade = student[course["index"]]
                 try:
-                    grades.append(normalize(grade, course["avg"], course["range"]))
+                    grades.append(
+                        normalize(grade, course["avg"], course["range"])
+                    )
                 except:
                     grades.append(0)
             self.grades.append(grades)

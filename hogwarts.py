@@ -1,62 +1,57 @@
 import matplotlib.pyplot as plt
 
 from describe import Data, Students, Features
-from DSCRB.calculations import mean_
+from DSCRB.calculations import std_
 
 class Hogwarts:
 
-    def __init__(self, name, color, position):
+    def __init__(self, name, color):
         self.name = name
         self.color = color
-        self.position=position
         self.grades = {}
-        self.normalized_average = {}
+        self.std_diff = {}
 
-    def get_grades(self, course, normalized_average=False):
+    def get_grades(self, course, std_diff=False):
         course_nb = Features.titles.index(course)
         grades = Students.get_one_feature(course_nb, self.name)
         self.grades[course] = grades
-        if normalized_average:
-            self.normalize_grades(mean_(grades), course, course_nb)
+        if std_diff:
+            course_std = Data.info[course_nb]["Std"]
+            house_std = std_(grades)
+            self.std_diff[course] = (course_std - house_std) * 100 / course_std
 
-    def normalize_grades(self, average, course, course_nb, max_range=100):
+    def hist(self, course, axs=None, label=None):
         try:
-            max_grade = Data.info[course_nb]["Max"]
-            min_grade = Data.info[course_nb]["Min"]
+            axs.hist(self.grades[course], 
+                facecolor=self.color, alpha=0.75, label=label)
         except:
-            return
-
+            plt.hist(self.grades[course], facecolor=self.color, alpha=0.75)
+    
+    def scatter(self, course_x, course_y, axs=None):
+        x, y = self.grades[course_x], self.grades[course_y]
+        x, y = Students.remove_incomplete_grades(courses=[x, y])
         try:
-            if max_grade > 0:
-                normalized = (average * max_range) // max_grade
-            elif max_grade < 0:
-                normalized = (average * -max_range) // min_grade
-            self.normalized_average[course] = normalized
+            axs.scatter(x, y, c=self.color, s=1)
         except:
-            pass
+            plt.scatter(x, y, c=self.color)
 
-    def plot(self, course, score, label=None):
-        plt.bar(course + self.position, score, color=self.color, width=1, label=label)
-
-    def set_label(self, course):
-        self.plot(0, self.normalized_average[course], label=self.name)
 
 class Gryffindor(Hogwarts):
 
     def __init__(self):
-        super().__init__("Gryffindor", 'maroon', 1)
+        super().__init__("Gryffindor", 'maroon')
 
 class Hufflepuff(Hogwarts):
     
     def __init__(self):
-        super().__init__("Hufflepuff", 'orange', 2)
+        super().__init__("Hufflepuff", 'orange')
 
 class Ravenclaw(Hogwarts):
     
     def __init__(self):
-        super().__init__("Ravenclaw", 'blue', 3)
+        super().__init__("Ravenclaw", 'blue')
 
 class Slytherin(Hogwarts):
     
     def __init__(self):
-        super().__init__("Slytherin", 'green', 4)
+        super().__init__("Slytherin", 'green')

@@ -12,20 +12,28 @@ import my_exceptions as error
 import DSCRB.print as print_
 
 from DSCRB.calculations import \
-num_len, sum_, sort_, count_, mean_, std_, min_, percentile_, max_
+num_len, sort_, count_, mean_, std_, min_, percentile_, max_
 from DSCRB.print import DP, PRINTED, PADDING
 
 class Data:
 
     info = []
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, check_houses=False):
         with open(dataset) as file:
             data = csv.reader(file)
             Features(next(data))            
             for student in data:
                 Students(student)
-        if Students.nb == 0: raise ValueError
+        if (Students.nb == 0 or Features.nb < 7
+                or ["Index", "Hogwarts House", "First Name",
+                    "Last Name","Birthday","Best Hand"] != Features.titles[:6]): 
+            raise ValueError
+        if check_houses:
+            houses = Students.get_one_feature(1)
+            houses = [house for house in houses if house != '']
+            if len(houses) == 0:
+                raise error.Houses
 
     def __str__(self, columns=80, lines=24):
         try:
@@ -82,11 +90,10 @@ class Students:
                 i += 1
 
     @staticmethod
-    def remove_incomplete_grades(courses, inplace=False):
+    def remove_incomplete_grades(courses):
+        courses = [course[:] for course in courses]
         i = 0
         grades_nb = len(courses[0])
-        if inplace == False:
-            courses = [course[:] for course in courses]
         while i < grades_nb:
             grades = [course[i] for course in courses]
             if 0 in grades:
@@ -102,7 +109,6 @@ class Features:
     titles = []
     nb = 0
     width = []
-    total_width = 0
 
     @classmethod
     def __init__(cls, data):
@@ -128,11 +134,11 @@ class Features:
     def make_calculations(info, data, depth):
         info["Min"] = min_(data)
         info["Max"] = max_(data)
+        info["Mean"] = mean_(data)
         if depth > 0:
-            info["Mean"] = mean_(data)
+            info["Std"] = std_(data, info["Mean"])
         if depth > 1:            
             sort_(data)
-            info["Std"] = std_(data, info["Mean"])
             info["25%"] = percentile_(data, 25)
             info["50%"] = percentile_(data, 50)
             info["75%"] = percentile_(data, 75)
@@ -142,7 +148,6 @@ class Features:
     def update_width(cls):
         for f in range(Features.nb):
             cls.width[f] = max_([cls.width[f], Data.info[f]["width"]])
-        cls.total_width = sum_(cls.width) + PRINTED
 
 
 def main():
@@ -157,5 +162,5 @@ if __name__ == "__main__":
         main()
     except (FileNotFoundError, StopIteration):
         raise error.File
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, TypeError, ZeroDivisionError):
         raise error.Dataset

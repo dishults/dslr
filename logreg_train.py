@@ -50,6 +50,20 @@ class LogisticRegression:
     def find_perfect_fit():
         """Find the best 5 courses for model training"""
 
+        def run_simultation():
+            X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
+            model = LogisticRegression(max_iterations=150)
+            model.fit(X, Y_original)
+
+            Y_predicted = Predict.predict(X, model.theta)
+            accuracy = check.accuracy_score(Y_original, Y_predicted)
+            print(c1, c2, c3, c4, c5, "\t", "." * int(accuracy * 100), accuracy)
+
+            return {
+                "combo" : [c1, c2, c3, c4, c5],
+                "accuracy" : accuracy,
+            }
+
         combo = {}
         courses_nb = len(Courses.courses)
         c = 0
@@ -59,17 +73,7 @@ class LogisticRegression:
                 for c3 in range(c2 + 1, courses_nb):
                     for c4 in range(c3 + 1, courses_nb):
                         for c5 in range(c4 + 1, courses_nb):
-                            X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
-                            model = LogisticRegression(max_iterations=150)
-                            model.fit(X, Y_original)
-                            Y_predicted = Predict.predict(X, model.theta)
-                            accuracy = check.accuracy_score(Y_original, Y_predicted)
-                            combo[c] = {
-                                "combo" : [c1, c2, c3, c4, c5],
-                                "accuracy" : accuracy
-                            }
-                            print(c1, c2, c3, c4, c5, "\t", 
-                                    "." * int(accuracy * 100), accuracy)
+                            combo[c] = run_simultation()
                             c += 1
         found = combo[0]
         for c in range(1, len(combo)):
@@ -81,7 +85,7 @@ class LogisticRegression:
 class Courses():
 
     courses = ("Herbology", "Defense Against the Dark Arts",
-                        "Divination", "Ancient Runes", "Flying")
+               "Divination", "Ancient Runes", "Flying")
     analized = []
     grades_normalized = []
     Y = []
@@ -109,7 +113,9 @@ class Courses():
             normalized = []
             for course in cls.analized:
                 try:
-                    normalized.append((grades[course.index] - course.avg) / course.range)
+                    normalized.append(
+                        (grades[course.index] - course.avg) / course.range
+                    )
                 except:
                     normalized.append(0)
 
@@ -120,7 +126,7 @@ class Courses():
 
 def get_data():
     Data(sys.argv[1])
-    Features.analyze(depth=1)
+    Features.analyze(depth=0)
 
 def get_courses():
     Courses.get_courses()
@@ -129,7 +135,8 @@ def get_courses():
 def bonus_main():
     """Find 5 best courses for model training"""
 
-    if len(sys.argv) != 3 or sys.argv[2] != "-f": raise error.Usage(extra=" [-f]")
+    if len(sys.argv) != 3 or sys.argv[2] != "-f": 
+        raise error.Usage(extra=" [-f]")
     get_data()
     courses = Features.titles[6:]
     Courses.courses = courses
@@ -139,8 +146,8 @@ def bonus_main():
     found = model.find_perfect_fit()
     c = found["combo"]
     print(found, f"\nCourses:\n{c[0]} - {courses[c[0]]}",
-            f"\n{c[1]} - {courses[c[1]]}\n{c[2]} - {courses[c[2]]}",
-            f"\n{c[3]} - {courses[c[3]]}\n{c[4]} - {courses[c[4]]}")
+          f"\n{c[1]} - {courses[c[1]]}\n{c[2]} - {courses[c[2]]}",
+          f"\n{c[3]} - {courses[c[3]]}\n{c[4]} - {courses[c[4]]}")
 
 def main():
     if len(sys.argv) != 2: bonus_main()
@@ -160,8 +167,7 @@ def main():
         for theta in model.theta:
             writer.writerow(theta)
         writer.writerow(["course index", "average", "range"])
-        for i in range(len(Courses.analized)):
-            course = Courses.analized[i]
+        for course in Courses.analized:
             writer.writerow([course.index, course.avg, course.range])
 
 if __name__ == "__main__":

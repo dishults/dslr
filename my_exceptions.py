@@ -23,6 +23,12 @@ class Dataset(Exception):
     def __init__(self):
         sys.exit("Check that your downloaded dataset is correct and hasn't been altered")
 
+class Houses(Exception):
+    
+    def __init__(self):
+        print("No data for Hogwarts Houses")
+        raise Dataset
+
 class Weights(Exception):
     
     def __init__(self):

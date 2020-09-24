@@ -100,5 +100,5 @@ if __name__ == "__main__":
     except (FileNotFoundError, StopIteration):
         sys.argv[1] += "' or '" + sys.argv[2]
         raise error.File
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, KeyError, TypeError):
         raise error.Dataset

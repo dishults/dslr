@@ -50,8 +50,7 @@ class Plot():
 
         def normalize(grade): return (grade * 100) // max_grade
 
-        x = 1
-        for course in self.courses:
+        for x, course in enumerate(self.courses, 1):
             grades = self.grades[course]
             if (len(grades) >= 100):
                 max_grade = max_(grades)
@@ -60,7 +59,6 @@ class Plot():
             grades = set(grades)
             position = [x] * len(grades)
             plt.scatter(position, list(grades))
-            x += 1
         plt.ylabel("Grades", fontsize='large')
         plt.yticks([])
         plt.xticks(list(range(1, len(self.courses) + 1)), self.courses)

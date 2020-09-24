@@ -21,21 +21,19 @@ def get_grades(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
             house.get_grades(course, std_diff=True)
     
 def show_all_histograms(axs, courses, gryffindor, hufflepuff, ravenclaw, slytherin):
-    for course_nb in range(len(courses)):
+    for course_nb, course in enumerate(courses):
         for house in gryffindor, hufflepuff, ravenclaw, slytherin:
-            house.hist(courses[course_nb], axs[course_nb])
+            house.hist(course, axs[course_nb])
 
 def make_histogram(courses, gryffindor, hufflepuff, ravenclaw, slytherin):
-    fig, axs = plt.subplots(1, len(courses), figsize=(16, 4), subplot_kw=dict(box_aspect=1))
+    fig, axs = plt.subplots(1, len(courses), figsize=(16, 4),
+                            subplot_kw={"box_aspect":1})
     fig.suptitle("Grades for courses")
     axs[0].set_ylabel("Number of students", fontsize='large')
     yield axs
-    col = 0
-    for course in courses:
+    for col, course in enumerate(courses):
         axs[col].set_xlabel(course, rotation=30, ha='right')
-        axs[col].set_xticks([])
-        axs[col].set_yticks([])
-        col += 1
+        axs[col].set_yticks([]), axs[col].set_xticks([])
     fig.legend([gryffindor.name, hufflepuff.name,
                 ravenclaw.name, slytherin.name],
                 loc='lower left', borderaxespad=0.1)
@@ -75,7 +73,6 @@ def main():
     show_all_histograms(axs, courses, gryffindor, hufflepuff, ravenclaw, slytherin)
     next(histogram)
     find_homogeneous_course(courses, gryffindor, hufflepuff, ravenclaw, slytherin)
-
 
 if __name__ == "__main__":
     try:

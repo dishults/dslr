@@ -62,9 +62,9 @@ class Students:
     
     @staticmethod
     def transform(student):
-        for i in range(len(student)):
+        for i, grade in enumerate(student):
             try:
-                student[i] = float(student[i])
+                student[i] = float(grade)
             except:
                 pass
     
@@ -91,17 +91,17 @@ class Students:
 
     @staticmethod
     def remove_incomplete_grades(courses):
-        courses = [course[:] for course in courses]
+        copy = [course[:] for course in courses]
         i = 0
         grades_nb = len(courses[0])
         while i < grades_nb:
-            grades = [course[i] for course in courses]
+            grades = [course[i] for course in copy]
             if 0 in grades:
-                [course.pop(i) for course in courses]
+                [course.pop(i) for course in copy]
                 grades_nb -= 1
             else:
                 i += 1
-        return courses
+        return copy
 
 
 class Features:
@@ -125,7 +125,7 @@ class Features:
             feature = [f for f in feature if f != '']
             if info["Count"] > 0 and count_(feature, "numbers") == info["Count"]:
                 info = cls.make_calculations(info, feature, depth)
-            if depth > 1:
+            if depth == 2:
                 info["width"] = max_([num_len(num) for num in info.values()])
                 info["width"] += 1 + DP + PADDING
             Data.info.append(info)
@@ -137,7 +137,7 @@ class Features:
         info["Mean"] = mean_(data)
         if depth > 0:
             info["Std"] = std_(data, info["Mean"])
-        if depth > 1:            
+        if depth == 2:            
             sort_(data)
             info["25%"] = percentile_(data, 25)
             info["50%"] = percentile_(data, 50)

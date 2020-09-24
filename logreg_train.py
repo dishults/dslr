@@ -46,41 +46,6 @@ class LogisticRegression:
                 theta -= self.gradient_descent(X, theta, y_ova, m)
             self.theta.append(theta)
 
-    @staticmethod
-    def find_perfect_fit():
-        """Find the best 5 courses for model training"""
-
-        def run_simultation():
-            X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
-            model = LogisticRegression(max_iterations=150)
-            model.fit(X, Y_original)
-
-            Y_predicted = Predict.predict(X, model.theta)
-            accuracy = check.accuracy_score(Y_original, Y_predicted)
-            print(c1, c2, c3, c4, c5, "\t", "." * int(accuracy * 100), accuracy)
-
-            return {
-                "combo" : [c1, c2, c3, c4, c5],
-                "accuracy" : accuracy,
-            }
-
-        combo = {}
-        courses_nb = len(Courses.courses)
-        c = 0
-        grades, Y_original = Courses.grades_normalized, Courses.Y
-        for c1 in range(courses_nb):
-            for c2 in range(c1 + 1, courses_nb):
-                for c3 in range(c2 + 1, courses_nb):
-                    for c4 in range(c3 + 1, courses_nb):
-                        for c5 in range(c4 + 1, courses_nb):
-                            combo[c] = run_simultation()
-                            c += 1
-        found = combo[0]
-        for c in range(1, len(combo)):
-            if combo[c]["accuracy"] > found["accuracy"]:
-                found = combo[c]
-        return found
-
 
 class Courses():
 
@@ -132,6 +97,35 @@ def get_courses():
     Courses.get_courses()
     Courses.get_normalized_grades()
 
+def find_perfect_fit():
+    """Find the best 5 courses for model training"""
+
+    def run_simultation():
+        X = [[x[c1], x[c2], x[c3], x[c4], x[c5]] for x in grades]
+        model = LogisticRegression(max_iterations=150)
+        model.fit(X, Y_original)
+
+        Y_predicted = Predict.predict(X, model.theta)
+        accuracy = check.accuracy_score(Y_original, Y_predicted)
+        print(c1, c2, c3, c4, c5, "\t", "." * int(accuracy * 100), accuracy)
+
+        return {"combo": [c1, c2, c3, c4, c5], "accuracy": accuracy}
+
+    combo = []
+    courses_nb = len(Courses.courses)
+    grades, Y_original = Courses.grades_normalized, Courses.Y
+    for c1 in range(courses_nb):
+        for c2 in range(c1 + 1, courses_nb):
+            for c3 in range(c2 + 1, courses_nb):
+                for c4 in range(c3 + 1, courses_nb):
+                    for c5 in range(c4 + 1, courses_nb):
+                        combo.append(run_simultation())
+    found = combo[0]
+    for c in range(1, len(combo)):
+        if combo[c]["accuracy"] > found["accuracy"]:
+            found = combo[c]
+    return found
+
 def bonus_main():
     """Find 5 best courses for model training"""
 
@@ -141,9 +135,8 @@ def bonus_main():
     courses = Features.titles[6:]
     Courses.courses = courses
     get_courses()
-    model = LogisticRegression()
 
-    found = model.find_perfect_fit()
+    found = find_perfect_fit()
     c = found["combo"]
     print(found, f"\nCourses:\n{c[0]} - {courses[c[0]]}",
           f"\n{c[1]} - {courses[c[1]]}\n{c[2]} - {courses[c[2]]}",
@@ -175,5 +168,5 @@ if __name__ == "__main__":
         main()
     except (FileNotFoundError, StopIteration):
         raise error.File
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, KeyError, TypeError):
         raise error.Dataset

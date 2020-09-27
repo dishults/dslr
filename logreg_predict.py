@@ -91,6 +91,7 @@ def main():
 
     with open("houses.csv", 'w') as res:
         writer = csv.writer(res)
+        writer.writerow(["Index", "Hogwarts House"])
         for index, y in enumerate(Y_predicted):
             writer.writerow([index, HOUSES[y]])
 

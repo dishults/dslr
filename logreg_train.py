@@ -3,7 +3,7 @@
 Train through gradient descent multiple sets of parameters theta for 
 one-vs-all logistic regression
 to sort students into Hogwarts houses
-based on grades from best combination of 5 courses
+based on grades from the best combination of 5 courses
 """
 
 import sys

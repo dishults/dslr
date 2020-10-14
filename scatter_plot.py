@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script which displays a scatter plot answering the next question:
-What are the two features that are similar ?
+What are the two features that are similar?
 """
 
 import sys
